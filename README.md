@@ -16,7 +16,7 @@ pip and conda installations are forthcoming. To install OSMnet follow these step
 1. Git clone this repo
 2. In the cloned directory run:
 ```
-python setup.py
+python setup.py install
 ```
 
 # Documentation
