@@ -27,9 +27,9 @@ setup(
     ],
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
-        'requests >= 2.11',
-        'pandas >= 0.19.0',
-        'numpy>=1.8.0',
+        'requests >= 2.9.1',
+        'pandas >= 0.16.0',
+        'numpy>=1.11',
         'geopandas>=0.2.1',
         'Shapely>=1.5'
     ]
