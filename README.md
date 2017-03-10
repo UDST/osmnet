@@ -1,4 +1,6 @@
 # OSMnet
+[![Build Status](https://travis-ci.org/UDST/osmnet.svg?branch=master)](https://travis-ci.org/UDST/osmnet)
+
 Tools for the extraction of OpenStreetMap (OSM) street network data. Intended to be used in tandem with Pandana and UrbanAccess libraries to extract street network nodes and edges.
 
 # Overview
