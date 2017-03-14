@@ -29,7 +29,7 @@ setup(
     install_requires=[
         'requests >= 2.9.1',
         'pandas >= 0.16.0',
-        'numpy>=1.11',
+        'numpy>=1.10',
         'geopandas>=0.2.1',
         'Shapely>=1.5'
     ]
