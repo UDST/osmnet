@@ -1,7 +1,7 @@
 # The following logging functions were modified from the osmnx library and used with permission from the author Geoff Boeing:
 # log, get_logger: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
-from __future__ import division
+
 
 import math
 import logging as lg
@@ -93,7 +93,7 @@ def log(message, level=None, name=None, filename=None):
         sys.stdout = sys.__stdout__
 
         # convert message to ascii for proper console display in windows terminals
-        message = unicodedata.normalize('NFKD', unicode(message)).encode('ascii', errors='replace').decode()
+        message = unicodedata.normalize('NFKD', str(message)).encode('ascii', errors='replace').decode()
         print(message)
         sys.stdout = standard_out
     # otherwise print out standard statement
