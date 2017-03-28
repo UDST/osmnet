@@ -9,6 +9,7 @@
 /logs
 /data
 /configs
+/docs/build
 
 # Test cache
 .cache
@@ -22,6 +23,7 @@
 *.o
 *.so
 *.pyc
+.coverage
 
 # Packages #
 ############

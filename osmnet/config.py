@@ -1,12 +1,12 @@
 
 def format_check(settings):
     """
-    Check the format of a osnnet_config object.
+    Check the format of a osmnet_config object.
 
     Parameters
     ----------
     settings : dict
-        osnnet_config as a dictionary
+        osmnet_config as a dictionary
     Returns
     -------
     Nothing
@@ -24,9 +24,10 @@ def format_check(settings):
         if key == 'log_file' or key == 'log_console':
             assert isinstance(settings[key],bool), ('{} must be boolean').format(key)
 
-class osnnet_config(object):
+class osmnet_config(object):
     """
-    A set of configuration variables to initiate the configuration settings for osmnet.
+    A set of configuration variables to initiate the configuration settings
+    for osmnet.
 
     Parameters
     ----------
@@ -41,7 +42,8 @@ class osnnet_config(object):
     log_filename : str
         name of the log file
     keep_osm_tags : list
-        list of OpenStreetMap tags to save from way elements and preserve in network edge table
+        list of OpenStreetMap tags to save from way elements and preserve in
+        network edge table
     """
 
     def __init__(self,
@@ -50,8 +52,9 @@ class osnnet_config(object):
                  log_console=False,
                  log_name='osmnet',
                  log_filename='osmnet',
-                 keep_osm_tags=['name','ref','highway', 'service', 'bridge','tunnel',
-                                'access','oneway','toll','lanes','maxspeed', 'hgv', 'hov']):
+                 keep_osm_tags=['name','ref','highway', 'service', 'bridge',
+                                'tunnel', 'access', 'oneway','toll','lanes',
+                                'maxspeed', 'hgv', 'hov']):
 
         self.logs_folder = logs_folder
         self.log_file = log_file
@@ -62,7 +65,7 @@ class osnnet_config(object):
 
     def to_dict(self):
         """
-        Return a dict representation of an osmnet osnnet_config instance.
+        Return a dict representation of an osmnet osmnet_config instance.
         """
         return {'logs_folder': self.logs_folder,
                 'log_file': self.log_file,
@@ -73,5 +76,5 @@ class osnnet_config(object):
                 }
 
 # instantiate the osmnet configuration object and check format
-settings = osnnet_config()
+settings = osmnet_config()
 format_check(settings.to_dict())

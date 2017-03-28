@@ -1,4 +1,5 @@
-# The following logging functions were modified from the osmnx library and used with permission from the author Geoff Boeing:
+# The following logging functions were modified from the osmnx library and
+# used with permission from the author Geoff Boeing:
 # log, get_logger: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
 from __future__ import division
@@ -74,7 +75,8 @@ def log(message, level=None, name=None, filename=None):
         filename = config.settings.log_filename
 
     if config.settings.log_file:
-        # get the current logger or create a new one then log message at requested level
+        # get the current logger or create a new one then log message at
+        # requested level
         logger = get_logger(level=level, name=name, filename=filename)
         if level == lg.DEBUG:
             logger.debug(message)
@@ -85,14 +87,17 @@ def log(message, level=None, name=None, filename=None):
         elif level == lg.ERROR:
             logger.error(message)
 
-    # if logging to console is turned on, convert message to ascii and print to the console only
+    # if logging to console is turned on, convert message to ascii and print
+    # to the console only
     if config.settings.log_console:
-        # capture current stdout, then switch it to the console, print the message, then switch back to what had been the stdout
+        # capture current stdout, then switch it to the console, print the
+        # message, then switch back to what had been the stdout
         # this prevents logging to notebook - instead, it goes to console
         standard_out = sys.stdout
         sys.stdout = sys.__stdout__
 
-        # convert message to ascii for proper console display in windows terminals
+        # convert message to ascii for proper console display in windows
+        # terminals
         message = unicodedata.normalize('NFKD', str(message)).encode('ascii', errors='replace').decode()
         print(message)
         sys.stdout = standard_out
