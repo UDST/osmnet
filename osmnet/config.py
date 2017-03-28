@@ -14,7 +14,7 @@ def format_check(settings):
 
     valid_keys = ['logs_folder', 'log_file', 'log_console', 'log_name', 'log_filename','keep_osm_tags']
 
-    for key in settings.keys():
+    for key in list(settings.keys()):
         assert key in valid_keys, ('{} not found in list of valid configuation keys').format(key)
         assert isinstance(key,str), ('{} must be a string').format(key)
         if key == 'keep_osm_tags':

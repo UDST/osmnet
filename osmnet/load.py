@@ -5,7 +5,7 @@
 # project_geometry, project_gdf: https://github.com/gboeing/osmnx/blob/master/osmnx/projection.py
 
 from __future__ import division
-from itertools import islice, izip
+from itertools import islice
 import re
 import pandas as pd
 import requests
@@ -438,7 +438,7 @@ def process_node(e):
 
     if 'tags' in e:
         if e['tags'] is not np.nan:
-            for t, v in e['tags'].items():
+            for t, v in list(e['tags'].items()):
                 if t in config.settings.keep_osm_tags:
                     node[t] = v
 
@@ -463,7 +463,7 @@ def process_way(e):
 
     if 'tags' in e:
         if e['tags'] is not np.nan:
-            for t, v in e['tags'].items():
+            for t, v in list(e['tags'].items()):
                 if t in config.settings.keep_osm_tags:
                     way[t] = v
 
@@ -591,14 +591,14 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
     """
     start_time = time.time()
     def pairwise(l):
-        return izip(islice(l, 0, len(l)), islice(l, 1, None))
+        return zip(islice(l, 0, len(l)), islice(l, 1, None))
     intersections = intersection_nodes(waynodes)
     waymap = waynodes.groupby(level=0, sort=False)
     pairs = []
 
     for id, row in ways.iterrows():
         nodes_in_way = waymap.get_group(id).node_id.values
-        nodes_in_way = filter(lambda x: x in intersections, nodes_in_way)
+        nodes_in_way = [x for x in nodes_in_way if x in intersections]
 
         if len(nodes_in_way) < 2:
             # no nodes to connect in this way
