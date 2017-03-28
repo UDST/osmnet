@@ -1,8 +1,11 @@
-# The following functions to download osm data, setup an recursive api request and subdivide bbox queries into smaller
-# bboxes were modified from the osmnx library and used with permission from the author Geoff Boeing
+# The following functions to download osm data, setup an recursive api request
+# and subdivide bbox queries into smaller bboxes were modified from the
+# osmnx library and used with permission from the author Geoff Boeing
 # osm_net_download, overpass_request, get_pause_duration,
-# consolidate_subdivide_geometry, quadrat_cut_geometry: https://github.com/gboeing/osmnx/blob/master/osmnx/core.py
-# project_geometry, project_gdf: https://github.com/gboeing/osmnx/blob/master/osmnx/projection.py
+# consolidate_subdivide_geometry, quadrat_cut_geometry:
+# https://github.com/gboeing/osmnx/blob/master/osmnx/core.py
+# project_geometry, project_gdf:
+# https://github.com/gboeing/osmnx/blob/master/osmnx/projection.py
 
 from __future__ import division
 from itertools import islice
@@ -28,7 +31,8 @@ def osm_filter(network_type):
 
     Parameters
     ----------
-    network_type : string, {'walk', 'drive'} denoting the type of street network to extract
+    network_type : string, {'walk', 'drive'} denoting the type of street
+    network to extract
 
     Returns
     -------
@@ -36,14 +40,17 @@ def osm_filter(network_type):
     """
     filters = {}
 
-    # drive: select only roads that are drivable by normal 2 wheel drive passenger vehicles both private and public
-    # roads. Filter out un-drivable roads and service roads tagged as parking, driveway, or emergency-access
+    # drive: select only roads that are drivable by normal 2 wheel drive
+    # passenger vehicles both private and public
+    # roads. Filter out un-drivable roads and service roads tagged as parking,
+    # driveway, or emergency-access
     filters['drive'] = ('["highway"!~"cycleway|footway|path|pedestrian|steps|track|'
                         'proposed|construction|bridleway|abandoned|platform|raceway|service"]'
                         '["motor_vehicle"!~"no"]["motorcar"!~"no"]'
                         '["service"!~"parking|parking_aisle|driveway|emergency_access"]')
 
-    # walk: select only roads and pathways that allow pedestrian access both private and public pathways and roads.
+    # walk: select only roads and pathways that allow pedestrian access both
+    # private and public pathways and roads.
     # Filter out limited access roadways and allow service roads
     filters['walk'] = ('["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]'
                        '["foot"!~"no"]["pedestrians"!~"no"]')
@@ -55,8 +62,9 @@ def osm_filter(network_type):
 
     return osm_filter
 
-def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None, network_type='walk',
-                     timeout=180, memory=None, max_query_area_size=50*1000*50*1000):
+def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
+                     network_type='walk', timeout=180, memory=None,
+                     max_query_area_size=50*1000*50*1000):
     """
     Download OSM ways and nodes within a bounding box from the Overpass API.
 
@@ -71,23 +79,27 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None, net
     lng_max : float
         western longitude of bounding box
     network_type : string
-        Specify the network type where value of 'walk' includes roadways where pedestrians are allowed and pedestrian
+        Specify the network type where value of 'walk' includes roadways
+        where pedestrians are allowed and pedestrian
         pathways and 'drive' includes driveable roadways.
     timeout : int
         the timeout interval for requests and to pass to Overpass API
     memory : int
-        server memory allocation size for the query, in bytes. If none, server will use its default allocation size
+        server memory allocation size for the query, in bytes. If none,
+        server will use its default allocation size
     max_query_area_size : float
-        max area for any part of the geometry, in the units the geometry is in: any polygon bigger will get divided up
-        for multiple queries to Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in area,
-        if units are meters))
+        max area for any part of the geometry, in the units the geometry is
+        in: any polygon bigger will get divided up for multiple queries to
+        Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
+        area, if units are meters))
 
     Returns
     -------
     response_json : dict
     """
 
-    # create a filter to exclude certain kinds of ways based on the requested network_type
+    # create a filter to exclude certain kinds of ways based on the requested
+    # network_type
     request_filter = osm_filter(network_type)
     response_jsons_list = []
     response_jsons = []
@@ -99,14 +111,16 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None, net
         maxsize = '[maxsize:{}]'.format(memory)
 
     # define the Overpass API query
-    # way["highway"] denotes ways with highway keys and {filters} returns ways with the requested key/value.
-    # the '>' makes it recurse so we get ways and way nodes. maxsize is in bytes.
+    # way["highway"] denotes ways with highway keys and {filters} returns
+    # ways with the requested key/value. the '>' makes it recurse so we get
+    # ways and way nodes. maxsize is in bytes.
 
     # turn bbox into a polygon and project to local UTM
     polygon = Polygon([(lng_max, lat_min), (lng_min, lat_min), (lng_min, lat_max), (lng_max, lat_max)])
     geometry_proj, crs_proj = project_geometry(polygon, crs={'init':'epsg:4326'})
 
-    # subdivide the bbox area poly if it exceeds the max area size (in meters), then project back to WGS84
+    # subdivide the bbox area poly if it exceeds the max area size
+    # (in meters), then project back to WGS84
     geometry_proj_consolidated_subdivided = consolidate_subdivide_geometry(geometry_proj,
                                                                            max_query_area_size=max_query_area_size)
     geometry, crs = project_geometry(geometry_proj_consolidated_subdivided, crs=crs_proj, to_latlong=True)
@@ -115,7 +129,8 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None, net
 
     # loop through each polygon in the geometry
     for poly in geometry:
-        # represent bbox as lng_max, lat_min, lng_min, lat_max and round lat-longs to 8 decimal places to create
+        # represent bbox as lng_max, lat_min, lng_min, lat_max and round
+        # lat-longs to 8 decimal places to create
         # consistent URL strings
         lng_max, lat_min, lng_min, lat_max = poly.bounds
         query_template = '[out:json][timeout:{timeout}]{maxsize};(way["highway"]' \
@@ -153,16 +168,19 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None, net
 
     return {'elements': response_jsons}
 
-def overpass_request(data, pause_duration=None, timeout=180, error_pause_duration=None):
+def overpass_request(data, pause_duration=None, timeout=180,
+                     error_pause_duration=None):
     """
-    Send a request to the Overpass API via HTTP POST and return the JSON response
+    Send a request to the Overpass API via HTTP POST and return the
+    JSON response
 
     Parameters
     ----------
     data : dict or OrderedDict
         key-value pairs of parameters to post to Overpass API
     pause_duration : int
-        how long to pause in seconds before requests, if None, will query Overpass API status endpoint
+        how long to pause in seconds before requests, if None, will query
+        Overpass API status endpoint
         to find when next slot is available
     timeout : int
         the timeout interval for the requests library
@@ -192,7 +210,8 @@ def overpass_request(data, pause_duration=None, timeout=180, error_pause_duratio
             log('Server remark: "{}"'.format(response_json['remark'], level=lg.WARNING))
 
     except:
-        #429 = 'too many requests' and 504 = 'gateway timeout' from server overload. handle these errors by recursively
+        #429 = 'too many requests' and 504 = 'gateway timeout' from server
+        # overload. handle these errors by recursively
         # calling overpass_request until a valid response is achieved
         if response.status_code in [429, 504]:
             # pause for error_pause_duration seconds before re-trying request
@@ -211,12 +230,14 @@ def overpass_request(data, pause_duration=None, timeout=180, error_pause_duratio
 
 def get_pause_duration(recursive_delay=5, default_duration=10):
     """
-    Check the Overpass API status endpoint to determine how long to wait until next slot is available.
+    Check the Overpass API status endpoint to determine how long to wait until
+    next slot is available.
 
     Parameters
     ----------
     recursive_delay : int
-        how long to wait between recursive calls if server is currently running a query
+        how long to wait between recursive calls if server is currently
+        running a query
     default_duration : int
         if fatal error, function falls back on returning this value
 
@@ -229,12 +250,14 @@ def get_pause_duration(recursive_delay=5, default_duration=10):
         status = response.text.split('\n')[3]
         status_first_token = status.split(' ')[0]
     except:
-        # if status endpoint cannot be reached or output parsed, log error and return default duration
+        # if status endpoint cannot be reached or output parsed, log error
+        # and return default duration
         log('Unable to query http://overpass-api.de/api/status', level=lg.ERROR)
         return default_duration
 
     try:
-        # if first token is numeric, it indicates the number of slots available - no wait required
+        # if first token is numeric, it indicates the number of slots
+        # available - no wait required
         available_slots = int(status_first_token)
         pause_duration = 0
     except:
@@ -245,13 +268,15 @@ def get_pause_duration(recursive_delay=5, default_duration=10):
             pause_duration = math.ceil((utc_time - dt.datetime.utcnow()).total_seconds())
             pause_duration = max(pause_duration, 1)
 
-        # if first token is 'Currently', it is currently running a query so check back in recursive_delay seconds
+        # if first token is 'Currently', it is currently running a query so
+        # check back in recursive_delay seconds
         elif status_first_token == 'Currently':
             time.sleep(recursive_delay)
             pause_duration = get_pause_duration()
 
         else:
-            # any other status is unrecognized - log an error and return default duration
+            # any other status is unrecognized - log an error and return
+            # default duration
             log('Unrecognized server status: "{}"'.format(status), level=lg.ERROR)
             return default_duration
 
@@ -259,31 +284,33 @@ def get_pause_duration(recursive_delay=5, default_duration=10):
 
 def consolidate_subdivide_geometry(geometry, max_query_area_size):
     """
-    Consolidate a geometry into a convex hull, then subdivide it into smaller sub-polygons
-    if its area exceeds max size (in geometry's units).
+    Consolidate a geometry into a convex hull, then subdivide it into
+    smaller sub-polygons if its area exceeds max size (in geometry's units).
 
     Parameters
     ----------
     geometry : shapely Polygon or MultiPolygon
         the geometry to consolidate and subdivide
     max_query_area_size : float
-        max area for any part of the geometry, in the units the geometry is in: any polygon bigger will get divided up
-        for multiple queries to the Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in area,
-        if units are meters))
+        max area for any part of the geometry, in the units the geometry is
+        in: any polygon bigger will get divided up for multiple queries to
+        the Overpass API (default is 50,000 * 50,000 units
+        (ie, 50km x 50km in area, if units are meters))
 
     Returns
     -------
     geometry : Polygon or MultiPolygon
     """
 
-    # let the linear length of the quadrats (with which to subdivide the geometry) be the square root of max area size
+    # let the linear length of the quadrats (with which to subdivide the
+    # geometry) be the square root of max area size
     quadrat_width = math.sqrt(max_query_area_size)
 
     if not isinstance(geometry, (Polygon, MultiPolygon)):
         raise ValueError('Geometry must be a shapely Polygon or MultiPolygon')
 
-    # if geometry is a MultiPolygon OR a single Polygon whose area exceeds the max size,
-    # get the convex hull around the geometry
+    # if geometry is a MultiPolygon OR a single Polygon whose area exceeds
+    # the max size, get the convex hull around the geometry
     if isinstance(geometry, MultiPolygon) or (isinstance(geometry, Polygon) and geometry.area > max_query_area_size):
         geometry = geometry.convex_hull
 
@@ -296,18 +323,22 @@ def consolidate_subdivide_geometry(geometry, max_query_area_size):
 
     return geometry
 
-def quadrat_cut_geometry(geometry, quadrat_width, min_num=3, buffer_amount=1e-9):
+def quadrat_cut_geometry(geometry, quadrat_width, min_num=3,
+                         buffer_amount=1e-9):
     """
-    Split a Polygon or MultiPolygon up into sub-polygons of a specified size, using quadrats.
+    Split a Polygon or MultiPolygon up into sub-polygons of a specified size,
+    using quadrats.
 
     Parameters
     ----------
     geometry : shapely Polygon or MultiPolygon
         the geometry to split up into smaller sub-polygons
     quadrat_width : float
-        the linear width of the quadrats with which to cut up the geometry (in the units the geometry is in)
+        the linear width of the quadrats with which to cut up the geometry
+        (in the units the geometry is in)
     min_num : float
-        the minimum number of linear quadrat lines (e.g., min_num=3 would produce a quadrat grid of 4 squares)
+        the minimum number of linear quadrat lines (e.g., min_num=3 would
+        produce a quadrat grid of 4 squares)
     buffer_amount : float
         buffer the quadrat grid lines by quadrat_width times buffer_amount
 
@@ -328,8 +359,8 @@ def quadrat_cut_geometry(geometry, quadrat_width, min_num=3, buffer_amount=1e-9)
     horizont_lines = [LineString([(x_points[0], y), (x_points[-1], y)]) for y in y_points]
     lines = vertical_lines + horizont_lines
 
-    # buffer each line to distance of the quadrat width divided by 1 billion, take their union,
-    # then cut geometry into pieces by these quadrats
+    # buffer each line to distance of the quadrat width divided by 1 billion,
+    # take their union, then cut geometry into pieces by these quadrats
     buffer_size = quadrat_width * buffer_amount
     lines_buffered = [line.buffer(buffer_size) for line in lines]
     quadrats = unary_union(lines_buffered)
@@ -348,11 +379,13 @@ def project_geometry(geometry, crs, to_latlong=False):
     crs : int
         the starting coordinate reference system of the passed-in geometry
     to_latlong : bool
-        if True, project from crs to WGS84, if False, project from crs to local UTM zone
+        if True, project from crs to WGS84, if False, project
+        from crs to local UTM zone
 
     Returns
     -------
-    geometry_proj, crs : tuple (projected shapely geometry, crs of the projected geometry)
+    geometry_proj, crs : tuple (projected shapely geometry, crs of the
+    projected geometry)
     """
     gdf = gpd.GeoDataFrame()
     gdf.crs = crs
@@ -365,8 +398,9 @@ def project_geometry(geometry, crs, to_latlong=False):
 
 def project_gdf(gdf, to_latlong=False, verbose=False):
     """
-    Project a GeoDataFrame to the UTM zone appropriate for its geometries' centroid. The calculation
-    works well for most latitudes, however it will not work well for some far northern locations.
+    Project a GeoDataFrame to the UTM zone appropriate for its geometries'
+    centroid. The calculation works well for most latitudes,
+    however it will not work well for some far northern locations.
 
     Parameters
     ----------
@@ -396,10 +430,12 @@ def project_gdf(gdf, to_latlong=False, verbose=False):
         if (not gdf.crs is None) and ('proj' in gdf.crs) and (gdf.crs['proj'] == 'utm'):
             return gdf
 
-        # calculate the centroid of the union of all the geometries in the GeoDataFrame
+        # calculate the centroid of the union of all the geometries in the
+        # GeoDataFrame
         avg_longitude = gdf['geometry'].unary_union.centroid.x
 
-        # calculate the UTM zone from this avg longitude and define the UTM CRS to project
+        # calculate the UTM zone from this avg longitude and define the
+        # UTM CRS to project
         utm_zone = int(math.floor((avg_longitude + 180) / 6.) + 1)
         utm_crs = {'datum': 'NAD83',
                    'ellps': 'GRS80',
@@ -420,7 +456,8 @@ def project_gdf(gdf, to_latlong=False, verbose=False):
 
 def process_node(e):
     """
-    Process a node element entry into a dict suitable for going into a Pandas DataFrame.
+    Process a node element entry into a dict suitable for going into a
+    Pandas DataFrame.
 
     Parameters
     ----------
@@ -446,7 +483,8 @@ def process_node(e):
 
 def process_way(e):
     """
-    Process a way element entry into a list of dicts suitable for going into a Pandas DataFrame.
+    Process a way element entry into a list of dicts suitable for going into
+    a Pandas DataFrame.
 
     Parameters
     ----------
@@ -511,7 +549,8 @@ def parse_network_osm_query(data):
     return (nodes, ways, waynodes)
 
 def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
-                 timeout=180, memory=None, max_query_area_size=50*1000*50*1000):
+                 timeout=180, memory=None,
+                 max_query_area_size=50*1000*50*1000):
     """
     Get DataFrames of OSM data in a bounding box.
 
@@ -526,16 +565,19 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
     lng_max : float
         western longitude of bounding box
     network_type : {'walk', 'drive'}, optional
-        Specify the network type where value of 'walk' includes roadways where pedestrians are allowed and pedestrian
-        pathways and 'drive' includes driveable roadways.
+        Specify the network type where value of 'walk' includes roadways
+        where pedestrians are allowed and pedestrian pathways and 'drive'
+        includes driveable roadways.
     timeout : int
         the timeout interval for requests and to pass to Overpass API
     memory : int
-        server memory allocation size for the query, in bytes. If none, server will use its default allocation size
+        server memory allocation size for the query, in bytes. If none,
+        server will use its default allocation size
     max_query_area_size : float
-        max area for any part of the geometry, in the units the geometry is in: any polygon bigger will get divided up
-        for multiple queries to Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in area,
-        if units are meters))
+        max area for any part of the geometry, in the units the geometry is
+        in: any polygon bigger will get divided up for multiple queries to
+        Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
+        area, if units are meters))
 
     Returns
     -------
@@ -643,11 +685,13 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
 
     return pairs
 
-def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None, bbox=None, network_type='walk',
-                      two_way=True, timeout=180, memory=None, max_query_area_size=50*1000*50*1000):
+def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
+                      bbox=None, network_type='walk', two_way=True,
+                      timeout=180, memory=None,
+                      max_query_area_size=50*1000*50*1000):
     """
-    Make a graph network from a bounding lat/lon box composed of nodes and edges for use in Pandana street
-    network accessibility calculations.
+    Make a graph network from a bounding lat/lon box composed of nodes and
+    edges for use in Pandana street network accessibility calculations.
 
     Parameters
     ----------
@@ -660,26 +704,32 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None, bb
     lng_max : float
         western longitude of bounding box
     bbox : tuple
-        Bounding box formatted as a 4 element tuple: (lng_max, lat_min, lng_min, lat_max)
+        Bounding box formatted as a 4 element tuple:
+        (lng_max, lat_min, lng_min, lat_max)
         example: (-122.304611,37.798933,-122.263412,37.822802)
-        a bbox can be extracted for an area using: the CSV format bbox from http://boundingbox.klokantech.com/
+        a bbox can be extracted for an area using: the CSV format bbox from
+        http://boundingbox.klokantech.com/
     network_type : {'walk', 'drive'}, optional
-        Specify the network type where value of 'walk' includes roadways where pedestrians are allowed and pedestrian
-        pathways and 'drive' includes driveable roadways. Default is walk.
+        Specify the network type where value of 'walk' includes roadways where
+        pedestrians are allowed and pedestrian pathways and 'drive' includes
+        driveable roadways. Default is walk.
     two_way : bool, optional
         Whether the routes are two-way. If True, node pairs will only
         occur once.
     timeout : int, optional
         the timeout interval for requests and to pass to Overpass API
     memory : int, optional
-        server memory allocation size for the query, in bytes. If none, server will use its default allocation size
+        server memory allocation size for the query, in bytes. If none,
+        server will use its default allocation size
     max_query_area_size : float, optional
-        max area for any part of the geometry, in the units the geometry is in: any polygon bigger will get divided up
-        for multiple queries to Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in area,
-        if units are meters))
+        max area for any part of the geometry, in the units the geometry is
+        in: any polygon bigger will get divided up for multiple queries to
+        Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
+        area, if units are meters))
     remove_lcn : bool, optional
-        remove low connectivity nodes from the resulting pandana network. this ensures the resulting network does
-        not have nodes that are unconnected fromt he rest of the larger network
+        remove low connectivity nodes from the resulting pandana network.
+        This ensures the resulting network does not have nodes that are
+        unconnected from the rest of the larger network
 
     Returns
     -------
