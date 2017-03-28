@@ -4,7 +4,7 @@
 # consolidate_subdivide_geometry, quadrat_cut_geometry: https://github.com/gboeing/osmnx/blob/master/osmnx/core.py
 # project_geometry, project_gdf: https://github.com/gboeing/osmnx/blob/master/osmnx/projection.py
 
-
+from __future__ import division
 from itertools import islice
 import re
 import pandas as pd
