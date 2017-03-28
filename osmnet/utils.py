@@ -1,7 +1,7 @@
 # The following logging functions were modified from the osmnx library and used with permission from the author Geoff Boeing:
 # log, get_logger: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
-
+from __future__ import division
 
 import math
 import logging as lg
