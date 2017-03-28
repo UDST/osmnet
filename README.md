@@ -6,7 +6,7 @@ Tools for the extraction of OpenStreetMap (OSM) street network data. Intended to
 # Overview
 OSMnet offers tools to download street network data from OpenStreetMap and extract a graph network comprised of nodes and edges to be used in [Pandana](https://github.com/UDST/pandana) street network accessibility calculations. 
 
-# Library Status
+## Library Status
 OSMnet is currently in a alpha release. Forthcoming improvements:
 - Tutorial/demo
 
@@ -34,6 +34,6 @@ Use ``git pull`` inside the cloned repository
 
 Documentation for OSMnet can be found [here](https://udst.github.io/osmnet/index.html).
 
-# Related UDST libraries
+## Related UDST libraries
 - [Pandana](https://github.com/UDST/pandana)
 - [UrbanAccess](https://github.com/UDST/urbanaccess)
