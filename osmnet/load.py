@@ -73,9 +73,9 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     lat_min : float
         southern latitude of bounding box
     lng_min : float
-        eastern latitude of bounding box
+        eastern longitude of bounding box
     lat_max : float
-        northern longitude of bounding box
+        northern latitude of bounding box
     lng_max : float
         western longitude of bounding box
     network_type : string
@@ -559,9 +559,9 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
     lat_min : float
         southern latitude of bounding box
     lng_min : float
-        eastern latitude of bounding box
+        eastern longitude of bounding box
     lat_max : float
-        northern longitude of bounding box
+        northern latitude of bounding box
     lng_max : float
         western longitude of bounding box
     network_type : {'walk', 'drive'}, optional
