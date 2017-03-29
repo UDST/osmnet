@@ -25,6 +25,7 @@ import geopandas as gpd
 from osmnet import config
 from osmnet.utils import log, great_circle_dist as gcd
 
+
 def osm_filter(network_type):
     """
     Create a filter to query Overpass API for the specified OSM network type.
@@ -44,16 +45,19 @@ def osm_filter(network_type):
     # passenger vehicles both private and public
     # roads. Filter out un-drivable roads and service roads tagged as parking,
     # driveway, or emergency-access
-    filters['drive'] = ('["highway"!~"cycleway|footway|path|pedestrian|steps|track|'
-                        'proposed|construction|bridleway|abandoned|platform|raceway|service"]'
+    filters['drive'] = ('["highway"!~"cycleway|footway|path|pedestrian|steps'
+                        '|track|proposed|construction|bridleway|abandoned'
+                        '|platform|raceway|service"]'
                         '["motor_vehicle"!~"no"]["motorcar"!~"no"]'
-                        '["service"!~"parking|parking_aisle|driveway|emergency_access"]')
+                        '["service"!~"parking|parking_aisle|driveway'
+                        '|emergency_access"]')
 
     # walk: select only roads and pathways that allow pedestrian access both
     # private and public pathways and roads.
     # Filter out limited access roadways and allow service roads
-    filters['walk'] = ('["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]'
-                       '["foot"!~"no"]["pedestrians"!~"no"]')
+    filters['walk'] = ('["highway"!~"motor|proposed|construction|abandoned'
+                       '|platform|raceway"]["foot"!~"no"]'
+                       '["pedestrians"!~"no"]')
 
     if network_type in filters:
         osm_filter = filters[network_type]
@@ -61,6 +65,7 @@ def osm_filter(network_type):
         raise ValueError('unknown network_type "{}"'.format(network_type))
 
     return osm_filter
+
 
 def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                      network_type='walk', timeout=180, memory=None,
@@ -116,15 +121,19 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     # ways and way nodes. maxsize is in bytes.
 
     # turn bbox into a polygon and project to local UTM
-    polygon = Polygon([(lng_max, lat_min), (lng_min, lat_min), (lng_min, lat_max), (lng_max, lat_max)])
-    geometry_proj, crs_proj = project_geometry(polygon, crs={'init':'epsg:4326'})
+    polygon = Polygon([(lng_max, lat_min), (lng_min, lat_min),
+                       (lng_min, lat_max), (lng_max, lat_max)])
+    geometry_proj, crs_proj = project_geometry(polygon,
+                                               crs={'init': 'epsg:4326'})
 
     # subdivide the bbox area poly if it exceeds the max area size
     # (in meters), then project back to WGS84
-    geometry_proj_consolidated_subdivided = consolidate_subdivide_geometry(geometry_proj,
-                                                                           max_query_area_size=max_query_area_size)
-    geometry, crs = project_geometry(geometry_proj_consolidated_subdivided, crs=crs_proj, to_latlong=True)
-    log('Requesting network data within bounding box from Overpass API in {:,} request(s)'.format(len(geometry)))
+    geometry_proj_consolidated_subdivided = consolidate_subdivide_geometry(
+        geometry_proj, max_query_area_size=max_query_area_size)
+    geometry, crs = project_geometry(geometry_proj_consolidated_subdivided,
+                                     crs=crs_proj, to_latlong=True)
+    log('Requesting network data within bounding box from Overpass API '
+        'in {:,} request(s)'.format(len(geometry)))
     start_time = time.time()
 
     # loop through each polygon in the geometry
@@ -133,15 +142,21 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         # lat-longs to 8 decimal places to create
         # consistent URL strings
         lng_max, lat_min, lng_min, lat_max = poly.bounds
-        query_template = '[out:json][timeout:{timeout}]{maxsize};(way["highway"]' \
-                         '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},{lng_min:.8f});>;);out;'
-        query_str = query_template.format(lat_max=lat_max, lat_min=lat_min, lng_min=lng_min, lng_max=lng_max,
-                                          filters=request_filter, timeout=timeout, maxsize=maxsize)
-        response_json = overpass_request(data={'data':query_str}, timeout=timeout)
+        query_template = '[out:json][timeout:{timeout}]{maxsize};' \
+                         '(way["highway"]' \
+                         '{filters}({lat_min:.8f},{lng_max:.8f},' \
+                         '{lat_max:.8f},{lng_min:.8f});>;);out;'
+        query_str = query_template.format(lat_max=lat_max, lat_min=lat_min,
+                                          lng_min=lng_min, lng_max=lng_max,
+                                          filters=request_filter,
+                                          timeout=timeout, maxsize=maxsize)
+        response_json = overpass_request(data={'data': query_str},
+                                         timeout=timeout)
 
         response_jsons_list.append(response_json)
 
-    log('Downloaded OSM network data within bounding box from Overpass API in {:,} request(s) and'
+    log('Downloaded OSM network data within bounding box from Overpass '
+        'API in {:,} request(s) and'
         ' {:,.2f} seconds'.format(len(geometry), time.time()-start_time))
 
     # stitch together individual json results
@@ -160,13 +175,15 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     nodes = nodes[~nodes.index.duplicated(keep='first')]
     ways = response_jsons_df[response_jsons_df['type'] == 'way']
     ways = ways[~ways.index.duplicated(keep='first')]
-    response_jsons_df = pd.concat([nodes, ways],axis=0)
+    response_jsons_df = pd.concat([nodes, ways], axis=0)
     response_jsons_df.reset_index(inplace=True)
     response_jsons = response_jsons_df.to_dict(orient='records')
     if record_count-len(response_jsons) > 0:
-        log('{} duplicate records removed. Took {:,.2f} seconds'.format(record_count-len(response_jsons),time.time()-start_time))
+        log('{} duplicate records removed. Took {:,.2f} seconds'
+            .format(record_count-len(response_jsons), time.time()-start_time))
 
     return {'elements': response_jsons}
+
 
 def overpass_request(data, pause_duration=None, timeout=180,
                      error_pause_duration=None):
@@ -202,31 +219,41 @@ def overpass_request(data, pause_duration=None, timeout=180,
     # get the response size and the domain, log result
     size_kb = len(response.content) / 1000.
     domain = re.findall(r'//(?s)(.*?)/', url)[0]
-    log('Downloaded {:,.1f}KB from {} in {:,.2f} seconds'.format(size_kb, domain, time.time()-start_time))
+    log('Downloaded {:,.1f}KB from {} in {:,.2f} seconds'
+        .format(size_kb, domain, time.time()-start_time))
 
     try:
         response_json = response.json()
         if 'remark' in response_json:
-            log('Server remark: "{}"'.format(response_json['remark'], level=lg.WARNING))
+            log('Server remark: "{}"'.format(response_json['remark'],
+                                             level=lg.WARNING))
 
     except:
-        #429 = 'too many requests' and 504 = 'gateway timeout' from server
+        # 429 = 'too many requests' and 504 = 'gateway timeout' from server
         # overload. handle these errors by recursively
         # calling overpass_request until a valid response is achieved
         if response.status_code in [429, 504]:
             # pause for error_pause_duration seconds before re-trying request
             if error_pause_duration is None:
                 error_pause_duration = get_pause_duration()
-            log('Server at {} returned status code {} and no JSON data. Re-trying request in {:.2f} seconds.'.format(domain, response.status_code, error_pause_duration), level=lg.WARNING)
+            log('Server at {} returned status code {} and no JSON data. '
+                'Re-trying request in {:.2f} seconds.'
+                .format(domain, response.status_code, error_pause_duration),
+                level=lg.WARNING)
             time.sleep(error_pause_duration)
-            response_json = overpass_request(data=data, pause_duration=pause_duration, timeout=timeout)
+            response_json = overpass_request(data=data,
+                                             pause_duration=pause_duration,
+                                             timeout=timeout)
 
         # else, this was an unhandled status_code, throw an exception
         else:
-            log('Server at {} returned status code {} and no JSON data'.format(domain, response.status_code), level=lg.ERROR)
-            raise Exception('Server returned no JSON data.\n{} {}\n{}'.format(response, response.reason, response.text))
+            log('Server at {} returned status code {} and no JSON data'
+                .format(domain, response.status_code), level=lg.ERROR)
+            raise Exception('Server returned no JSON data.\n{} {}\n{}'
+                            .format(response, response.reason, response.text))
 
     return response_json
+
 
 def get_pause_duration(recursive_delay=5, default_duration=10):
     """
@@ -252,7 +279,8 @@ def get_pause_duration(recursive_delay=5, default_duration=10):
     except:
         # if status endpoint cannot be reached or output parsed, log error
         # and return default duration
-        log('Unable to query http://overpass-api.de/api/status', level=lg.ERROR)
+        log('Unable to query http://overpass-api.de/api/status',
+            level=lg.ERROR)
         return default_duration
 
     try:
@@ -265,7 +293,8 @@ def get_pause_duration(recursive_delay=5, default_duration=10):
         if status_first_token == 'Slot':
             utc_time_str = status.split(' ')[3]
             utc_time = date_parser.parse(utc_time_str).replace(tzinfo=None)
-            pause_duration = math.ceil((utc_time - dt.datetime.utcnow()).total_seconds())
+            pause_duration = math.ceil(
+                (utc_time - dt.datetime.utcnow()).total_seconds())
             pause_duration = max(pause_duration, 1)
 
         # if first token is 'Currently', it is currently running a query so
@@ -277,10 +306,12 @@ def get_pause_duration(recursive_delay=5, default_duration=10):
         else:
             # any other status is unrecognized - log an error and return
             # default duration
-            log('Unrecognized server status: "{}"'.format(status), level=lg.ERROR)
+            log('Unrecognized server status: "{}"'.format(status),
+                level=lg.ERROR)
             return default_duration
 
     return pause_duration
+
 
 def consolidate_subdivide_geometry(geometry, max_query_area_size):
     """
@@ -311,7 +342,10 @@ def consolidate_subdivide_geometry(geometry, max_query_area_size):
 
     # if geometry is a MultiPolygon OR a single Polygon whose area exceeds
     # the max size, get the convex hull around the geometry
-    if isinstance(geometry, MultiPolygon) or (isinstance(geometry, Polygon) and geometry.area > max_query_area_size):
+    if isinstance(
+            geometry, MultiPolygon) or \
+            (isinstance(
+                geometry, Polygon) and geometry.area > max_query_area_size):
         geometry = geometry.convex_hull
 
     # if geometry area exceeds max size, subdivide it into smaller sub-polygons
@@ -322,6 +356,7 @@ def consolidate_subdivide_geometry(geometry, max_query_area_size):
         geometry = MultiPolygon([geometry])
 
     return geometry
+
 
 def quadrat_cut_geometry(geometry, quadrat_width, min_num=3,
                          buffer_amount=1e-9):
@@ -355,8 +390,10 @@ def quadrat_cut_geometry(geometry, quadrat_width, min_num=3,
     y_points = np.linspace(lat_min, lat_max, num=max(y_num, min_num))
 
     # create a quadrat grid of lines at each of the evenly spaced points
-    vertical_lines = [LineString([(x, y_points[0]), (x, y_points[-1])]) for x in x_points]
-    horizont_lines = [LineString([(x_points[0], y), (x_points[-1], y)]) for y in y_points]
+    vertical_lines = [LineString([(x, y_points[0]), (x, y_points[-1])])
+                      for x in x_points]
+    horizont_lines = [LineString([(x_points[0], y), (x_points[-1], y)])
+                      for y in y_points]
     lines = vertical_lines + horizont_lines
 
     # buffer each line to distance of the quadrat width divided by 1 billion,
@@ -367,6 +404,7 @@ def quadrat_cut_geometry(geometry, quadrat_width, min_num=3,
     multipoly = geometry.difference(quadrats)
 
     return multipoly
+
 
 def project_geometry(geometry, crs, to_latlong=False):
     """
@@ -396,6 +434,7 @@ def project_geometry(geometry, crs, to_latlong=False):
     geometry_proj = gdf_proj['geometry'].iloc[0]
     return geometry_proj, gdf_proj.crs
 
+
 def project_gdf(gdf, to_latlong=False, verbose=False):
     """
     Project a GeoDataFrame to the UTM zone appropriate for its geometries'
@@ -418,16 +457,18 @@ def project_gdf(gdf, to_latlong=False, verbose=False):
 
     if to_latlong:
         # if to_latlong is True, project the gdf to WGS84
-        latlong_crs = {'init':'epsg:4326'}
+        latlong_crs = {'init': 'epsg:4326'}
         projected_gdf = gdf.to_crs(latlong_crs)
         if not hasattr(gdf, 'name'):
             gdf.name = 'unnamed'
         if verbose:
-            log('Projected the GeoDataFrame "{}" to EPSG 4326 in {:,.2f} seconds'.format(gdf.name, time.time()-start_time))
+            log('Projected the GeoDataFrame "{}" to EPSG 4326 in {:,.2f} '
+                'seconds'.format(gdf.name, time.time()-start_time))
     else:
         # else, project the gdf to UTM
         # if GeoDataFrame is already in UTM, return it
-        if (not gdf.crs is None) and ('proj' in gdf.crs) and (gdf.crs['proj'] == 'utm'):
+        if (gdf.crs is not None) and ('proj' in gdf.crs) \
+                and (gdf.crs['proj'] == 'utm'):
             return gdf
 
         # calculate the centroid of the union of all the geometries in the
@@ -439,8 +480,8 @@ def project_gdf(gdf, to_latlong=False, verbose=False):
         utm_zone = int(math.floor((avg_longitude + 180) / 6.) + 1)
         utm_crs = {'datum': 'NAD83',
                    'ellps': 'GRS80',
-                   'proj' : 'utm',
-                   'zone' : utm_zone,
+                   'proj': 'utm',
+                   'zone': utm_zone,
                    'units': 'm'}
 
         # project the GeoDataFrame to the UTM CRS
@@ -453,6 +494,7 @@ def project_gdf(gdf, to_latlong=False, verbose=False):
 
     projected_gdf.name = gdf.name
     return projected_gdf
+
 
 def process_node(e):
     """
@@ -480,6 +522,7 @@ def process_node(e):
                     node[t] = v
 
     return node
+
 
 def process_way(e):
     """
@@ -512,6 +555,7 @@ def process_way(e):
         waynodes.append({'way_id': e['id'], 'node_id': n})
 
     return way, waynodes
+
 
 def parse_network_osm_query(data):
     """
@@ -547,6 +591,7 @@ def parse_network_osm_query(data):
     waynodes = pd.DataFrame.from_records(waynodes, index='way_id')
 
     return (nodes, ways, waynodes)
+
 
 def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
                  timeout=180, memory=None,
@@ -584,9 +629,12 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
     nodes, ways, waynodes : pandas.DataFrame
 
     """
-    return parse_network_osm_query(osm_net_download(lat_max=lat_max, lat_min=lat_min, lng_min=lng_min, lng_max=lng_max,
-                                                    network_type=network_type, timeout=timeout, memory=memory,
-                                                    max_query_area_size=max_query_area_size))
+    return parse_network_osm_query(
+        osm_net_download(lat_max=lat_max, lat_min=lat_min, lng_min=lng_min,
+                         lng_max=lng_max, network_type=network_type,
+                         timeout=timeout, memory=memory,
+                         max_query_area_size=max_query_area_size))
+
 
 def intersection_nodes(waynodes):
     """
@@ -605,6 +653,7 @@ def intersection_nodes(waynodes):
     """
     counts = waynodes.node_id.value_counts()
     return set(counts[counts > 1].index.values)
+
 
 def node_pairs(nodes, ways, waynodes, two_way=True):
     """
@@ -632,6 +681,7 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
 
     """
     start_time = time.time()
+
     def pairwise(l):
         return zip(islice(l, 0, len(l)), islice(l, 1, None))
     intersections = intersection_nodes(waynodes)
@@ -651,7 +701,7 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
                 fn = nodes.loc[from_node]
                 tn = nodes.loc[to_node]
 
-                distance = round(gcd(fn.lat, fn.lon, tn.lat, tn.lon),6)
+                distance = round(gcd(fn.lat, fn.lon, tn.lat, tn.lon), 6)
 
                 col_dict = {'from_id': from_node,
                             'to_id': to_node,
@@ -680,10 +730,13 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
                     pairs.append(col_dict)
 
     pairs = pd.DataFrame.from_records(pairs)
-    pairs.index = pd.MultiIndex.from_arrays([pairs['from_id'].values, pairs['to_id'].values])
-    log('Edge node pairs completed. Took {:,.2f} seconds'.format(time.time()-start_time))
+    pairs.index = pd.MultiIndex.from_arrays([pairs['from_id'].values,
+                                             pairs['to_id'].values])
+    log('Edge node pairs completed. Took {:,.2f} seconds'
+        .format(time.time()-start_time))
 
     return pairs
+
 
 def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                       bbox=None, network_type='walk', two_way=True,
@@ -740,9 +793,12 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     start_time = time.time()
 
     if bbox is not None:
-        assert isinstance(bbox,tuple) and len(bbox) == 4, 'bbox must be a 4 element tuple'
-        assert (lat_min is None) and (lng_min is None) and (lat_max is None) and \
-               (lng_max is None), 'lat_min, lng_min, lat_max and lng_max must be None if you are using bbox'
+        assert isinstance(bbox, tuple) \
+               and len(bbox) == 4, 'bbox must be a 4 element tuple'
+        assert (lat_min is None) and (lng_min is None) and \
+               (lat_max is None) and (lng_max is None), \
+            'lat_min, lng_min, lat_max and lng_max must be None ' \
+            'if you are using bbox'
 
         lng_max, lat_min, lng_min, lat_max = bbox
 
@@ -750,24 +806,29 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     assert lng_min is not None, 'lng_min cannot be None'
     assert lat_max is not None, 'lat_max cannot be None'
     assert lng_max is not None, 'lng_max cannot be None'
-    assert isinstance(lat_min,float) and isinstance(lng_min,float) and isinstance(lat_max,float) and \
-           isinstance(lng_max,float), 'lat_min, lng_min, lat_max, and lng_max must be floats'
+    assert isinstance(lat_min, float) and isinstance(lng_min, float) and \
+        isinstance(lat_max, float) and isinstance(lng_max, float), \
+        'lat_min, lng_min, lat_max, and lng_max must be floats'
 
-    nodes, ways, waynodes = ways_in_bbox(lat_min=lat_min, lng_min=lng_min, lat_max=lat_max, lng_max=lng_max,
-                                         network_type=network_type, timeout=timeout,
-                                         memory=memory, max_query_area_size=max_query_area_size)
-    log('Returning OSM data with {:,} nodes and {:,} ways...'.format(len(nodes), len(ways)))
+    nodes, ways, waynodes = ways_in_bbox(
+        lat_min=lat_min, lng_min=lng_min, lat_max=lat_max, lng_max=lng_max,
+        network_type=network_type, timeout=timeout,
+        memory=memory, max_query_area_size=max_query_area_size)
+    log('Returning OSM data with {:,} nodes and {:,} ways...'
+        .format(len(nodes), len(ways)))
 
     edgesfinal = node_pairs(nodes, ways, waynodes, two_way=two_way)
 
     # make the unique set of nodes that ended up in pairs
-    node_ids = sorted(set(edgesfinal['from_id'].unique()).union(set(edgesfinal['to_id'].unique())))
+    node_ids = sorted(set(edgesfinal['from_id'].unique())
+                      .union(set(edgesfinal['to_id'].unique())))
     nodesfinal = nodes.loc[node_ids]
-    nodesfinal = nodesfinal[['lon','lat']]
+    nodesfinal = nodesfinal[['lon', 'lat']]
     nodesfinal.rename(columns={'lon': 'x', 'lat': 'y'}, inplace=True)
     nodesfinal['id'] = nodesfinal.index
-    edgesfinal.rename(columns={'from_id': 'from', 'to_id': 'to'},inplace=True)
-    log('Returning processed graph with {:,} nodes and {:,} edges...'.format(len(nodesfinal), len(edgesfinal)))
+    edgesfinal.rename(columns={'from_id': 'from', 'to_id': 'to'}, inplace=True)
+    log('Returning processed graph with {:,} nodes and {:,} edges...'
+        .format(len(nodesfinal), len(edgesfinal)))
     log('Completed OSM data download and Pandana node and edge table '
         'creation in {:,.2f} seconds'.format(time.time()-start_time))
 

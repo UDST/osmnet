@@ -13,6 +13,7 @@ import os
 
 from osmnet import config
 
+
 def great_circle_dist(lat1, lon1, lat2, lon2):
     """
     Get the distance (in meters) between two lat/lon points
@@ -46,6 +47,7 @@ def great_circle_dist(lat1, lon1, lat2, lon2):
     d = 2 * radius * math.asin(math.sqrt(a + b))
 
     return d
+
 
 def log(message, level=None, name=None, filename=None):
     """
@@ -98,12 +100,14 @@ def log(message, level=None, name=None, filename=None):
 
         # convert message to ascii for proper console display in windows
         # terminals
-        message = unicodedata.normalize('NFKD', str(message)).encode('ascii', errors='replace').decode()
+        message = unicodedata.normalize(
+            'NFKD', str(message)).encode('ascii', errors='replace').decode()
         print(message)
         sys.stdout = standard_out
     # otherwise print out standard statement
     else:
         print(message)
+
 
 def get_logger(level=None, name=None, filename=None):
     """
@@ -136,14 +140,16 @@ def get_logger(level=None, name=None, filename=None):
     if not getattr(logger, 'handler_set', None):
 
         todays_date = dt.datetime.today().strftime('%Y_%m_%d')
-        log_filename = '{}/{}_{}.log'.format(config.settings.logs_folder, filename, todays_date)
+        log_filename = '{}/{}_{}.log'.format(config.settings.logs_folder,
+                                             filename, todays_date)
 
         if not os.path.exists(config.settings.logs_folder):
             os.makedirs(config.settings.logs_folder)
 
         # create file handler and log formatter and establish settings
         handler = lg.FileHandler(log_filename, encoding='utf-8')
-        formatter = lg.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
+        formatter = lg.Formatter(
+            '%(asctime)s %(levelname)s %(name)s %(message)s')
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(level)

@@ -12,17 +12,23 @@ def format_check(settings):
     Nothing
     """
 
-    valid_keys = ['logs_folder', 'log_file', 'log_console', 'log_name', 'log_filename','keep_osm_tags']
+    valid_keys = ['logs_folder', 'log_file', 'log_console', 'log_name',
+                  'log_filename', 'keep_osm_tags']
 
     for key in list(settings.keys()):
-        assert key in valid_keys, ('{} not found in list of valid configuation keys').format(key)
-        assert isinstance(key,str), ('{} must be a string').format(key)
+        assert key in valid_keys, \
+            ('{} not found in list of valid configuation keys').format(key)
+        assert isinstance(key, str), ('{} must be a string').format(key)
         if key == 'keep_osm_tags':
-            assert isinstance(settings[key],list), ('{} must be a list').format(key)
+            assert isinstance(settings[key], list), \
+                ('{} must be a list').format(key)
             for value in settings[key]:
-                assert all(isinstance(element,str) for element in value), 'all elements must be a string'
+                assert all(isinstance(element, str) for element in value), \
+                    'all elements must be a string'
         if key == 'log_file' or key == 'log_console':
-            assert isinstance(settings[key],bool), ('{} must be boolean').format(key)
+            assert isinstance(settings[key], bool), \
+                ('{} must be boolean').format(key)
+
 
 class osmnet_config(object):
     """
@@ -52,8 +58,8 @@ class osmnet_config(object):
                  log_console=False,
                  log_name='osmnet',
                  log_filename='osmnet',
-                 keep_osm_tags=['name','ref','highway', 'service', 'bridge',
-                                'tunnel', 'access', 'oneway','toll','lanes',
+                 keep_osm_tags=['name', 'ref', 'highway', 'service', 'bridge',
+                                'tunnel', 'access', 'oneway', 'toll', 'lanes',
                                 'maxspeed', 'hgv', 'hov']):
 
         self.logs_folder = logs_folder
