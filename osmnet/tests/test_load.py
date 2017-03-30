@@ -38,20 +38,26 @@ def bbox4():
 def query_data1(bbox1):
     lat_min, lng_max, lat_max, lng_min = bbox1
     query_template = '[out:json][timeout:{timeout}]{maxsize};(way["highway"]' \
-                     '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},{lng_min:.8f});>;);out;'
-    query_str = query_template.format(lat_max=lat_max, lat_min=lat_min, lng_min=lng_min, lng_max=lng_max,
-                                      filters=load.osm_filter('walk'),timeout=180,maxsize='')
-    return load.overpass_request(data={'data':query_str})
+                     '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},' \
+                     '{lng_min:.8f});>;);out;'
+    query_str = query_template.format(lat_max=lat_max, lat_min=lat_min,
+                                      lng_min=lng_min, lng_max=lng_max,
+                                      filters=load.osm_filter('walk'),
+                                      timeout=180, maxsize='')
+    return load.overpass_request(data={'data': query_str})
 
 
 @pytest.fixture(scope='module')
 def query_data2(bbox2):
     lat_min, lng_max, lat_max, lng_min = bbox2
     query_template = '[out:json][timeout:{timeout}]{maxsize};(way["highway"]' \
-                     '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},{lng_min:.8f});>;);out;'
-    query_str = query_template.format(lat_max=lat_max, lat_min=lat_min, lng_min=lng_min, lng_max=lng_max,
-                                      filters=load.osm_filter('walk'),timeout=180,maxsize='')
-    return load.overpass_request(data={'data':query_str})
+                     '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},' \
+                     '{lng_min:.8f});>;);out;'
+    query_str = query_template.format(lat_max=lat_max, lat_min=lat_min,
+                                      lng_min=lng_min, lng_max=lng_max,
+                                      filters=load.osm_filter('walk'),
+                                      timeout=180, maxsize='')
+    return load.overpass_request(data={'data': query_str})
 
 
 @pytest.fixture(scope='module')
@@ -67,8 +73,10 @@ def dataframes2(query_data2):
 def test_make_osm_query(query_data1):
     assert isinstance(query_data1, dict)
     assert len(query_data1['elements']) == 42
-    assert len([e for e in query_data1['elements'] if e['type'] == 'node']) == 39
-    assert len([e for e in query_data1['elements'] if e['type'] == 'way']) == 3
+    assert len([e for e in query_data1['elements']
+                if e['type'] == 'node']) == 39
+    assert len([e for e in query_data1['elements']
+                if e['type'] == 'way']) == 3
 
 
 def test_process_node():
@@ -141,10 +149,13 @@ def test_parse_network_osm_query(dataframes1):
 
 def test_parse_network_osm_query_raises():
     query_template = '[out:json][timeout:{timeout}]{maxsize};(way["highway"]' \
-                     '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},{lng_min:.8f});>;);out;'
-    query_str = query_template.format(lat_max=37.8, lng_min=-122.252, lat_min=37.8, lng_max=-122.252,
-                                      filters=load.osm_filter('walk'),timeout=180,maxsize='')
-    data = load.overpass_request(data={'data':query_str})
+                     '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},' \
+                     '{lng_min:.8f});>;);out;'
+    query_str = query_template.format(lat_max=37.8, lng_min=-122.252,
+                                      lat_min=37.8, lng_max=-122.252,
+                                      filters=load.osm_filter('walk'),
+                                      timeout=180, maxsize='')
+    data = load.overpass_request(data={'data': query_str})
     with pytest.raises(RuntimeError):
         load.parse_network_osm_query(data)
 
@@ -224,12 +235,14 @@ def test_node_pairs_one_way(dataframes2):
 
 def test_column_names(bbox4):
 
-    nodes, edges = load.network_from_bbox(bbox=bbox4, network_type='walk',
-                                     timeout=180, memory=None, max_query_area_size=50*1000*50*1000)
+    nodes, edges = load.network_from_bbox(
+        bbox=bbox4, network_type='walk', timeout=180, memory=None,
+        max_query_area_size=50*1000*50*1000
+    )
     col_list = ['x', 'y', 'id']
     for col in col_list:
         assert col in nodes.columns
 
-    col_list = ['distance','from','to']
+    col_list = ['distance', 'from', 'to']
     for col in col_list:
         assert col in edges.columns

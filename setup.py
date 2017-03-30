@@ -16,7 +16,8 @@ setup(
     name='osmnet',
     version='0.1a',
     license='AGPL',
-    description='Tools for the extraction of OpenStreetMap street network data for use in Pandana accessibility analyses.',
+    description=('Tools for the extraction of OpenStreetMap street network '
+                 'data for use in Pandana accessibility analyses.'),
     long_description=long_description,
     author='UrbanSim Inc.',
     url='https://github.com/UDST/osmnet',
