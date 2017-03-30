@@ -81,6 +81,7 @@ class osmnet_config(object):
                 'keep_osm_tags': self.keep_osm_tags
                 }
 
+
 # instantiate the osmnet configuration object and check format
 settings = osmnet_config()
 format_check(settings.to_dict())
