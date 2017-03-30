@@ -163,7 +163,8 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     for json in response_jsons_list:
         try:
             response_jsons.extend(json['elements'])
-        except:
+        except Exception:
+            log('Exception while stitching individual JSON results.')
             pass
 
     # remove duplicate records resulting from the json stitching
@@ -228,7 +229,7 @@ def overpass_request(data, pause_duration=None, timeout=180,
             log('Server remark: "{}"'.format(response_json['remark'],
                                              level=lg.WARNING))
 
-    except:
+    except Exception:
         # 429 = 'too many requests' and 504 = 'gateway timeout' from server
         # overload. handle these errors by recursively
         # calling overpass_request until a valid response is achieved
@@ -276,7 +277,7 @@ def get_pause_duration(recursive_delay=5, default_duration=10):
         response = requests.get('http://overpass-api.de/api/status')
         status = response.text.split('\n')[3]
         status_first_token = status.split(' ')[0]
-    except:
+    except Exception:
         # if status endpoint cannot be reached or output parsed, log error
         # and return default duration
         log('Unable to query http://overpass-api.de/api/status',
@@ -288,7 +289,7 @@ def get_pause_duration(recursive_delay=5, default_duration=10):
         # available - no wait required
         available_slots = int(status_first_token)
         pause_duration = 0
-    except:
+    except Exception:
         # if first token is 'Slot', it tells you when your slot will be free
         if status_first_token == 'Slot':
             utc_time_str = status.split(' ')[3]
@@ -710,7 +711,8 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
                 for tag in config.settings.keep_osm_tags:
                     try:
                         col_dict.update({tag: row[tag]})
-                    except:
+                    except Exception:
+                        log('Exception while updating dictionary (two-way).')
                         pass
 
                 pairs.append(col_dict)
@@ -724,7 +726,9 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
                     for tag in config.settings.keep_osm_tags:
                         try:
                             col_dict.update({tag: row[tag]})
-                        except:
+                        except Exception:
+                            log('Exception while updating dictionary '
+                                '(one-way).')
                             pass
 
                     pairs.append(col_dict)
