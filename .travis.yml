@@ -18,9 +18,9 @@ install:
   conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip numpy=1.10 pandas pytest pyyaml
 - source activate test-environment
 - conda list
-- pip install geopandas Shapely pep8
+- pip install geopandas Shapely pycodestyle
 - pip install .
 
 script:
-- pep8 osmnet
+- pycodestyle osmnet
 - py.test
