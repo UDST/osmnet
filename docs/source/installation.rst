@@ -30,7 +30,7 @@ conda installation is forthcoming.
 pip
 ^^^^^^^^^^^^^
 
-OSMnet can be installed via PyPI::
+OSMnet can be installed via PyPI:
 
 ``pip install osmnet``
 
