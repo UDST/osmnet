@@ -17,8 +17,9 @@ and extract a graph network comprised of nodes and edges to be used in
 Library Status
 --------------
 
-OSMnet is currently in a alpha release. Forthcoming improvements: -
-Tutorial/demo
+*Forthcoming improvements:*
+
+* Tutorial/demo
 
 Reporting bugs
 --------------
@@ -29,18 +30,33 @@ Contributing to OSMnet
 ----------------------
 
 If you have improvements or new features you would like to see in
-OSMnet: 1. Open a feature request via `GitHub issues`_. 2. Contribute
-your code from a fork or branch by using a Pull Request and request a
-review so it can be considered as an addition to the codebase.
+OSMnet:
+
+1. Open a feature request via `GitHub issues`_.
+2. Contribute your code from a fork or branch by using a Pull Request and
+request a review so it can be considered as an addition to the codebase.
 
 Installation
 ------------
 
-pip and conda installations are forthcoming. OSMnet is currently in a
-alpha release. As such, it is suggest to install using the ``develop``
-command rather than ``install``. Make sure you are using the latest
-version of the code base by using git’s ``git pull`` inside the cloned
-repository.
+conda
+^^^^^^^^^^^^^
+
+conda installation is forthcoming.
+
+pip
+^^^^^^^^^^^^^
+
+OSMnet can be installed via PyPI::
+
+``pip install osmnet``
+
+Development Installation
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To install use the ``develop`` command rather than ``install``. Make sure you
+are using the latest version of the code base by using git’s ``git pull``
+inside the cloned repository.
 
 To install OSMnet follow these steps:
 
