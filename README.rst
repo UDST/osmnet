@@ -29,8 +29,7 @@ Please report any bugs you encounter via `GitHub issues`_.
 Contributing to OSMnet
 ----------------------
 
-If you have improvements or new features you would like to see in
-OSMnet:
+If you have improvements or new features you would like to see in OSMnet:
 
 1. Open a feature request via `GitHub issues`_.
 2. Contribute your code from a fork or branch by using a Pull Request and
