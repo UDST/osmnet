@@ -14,7 +14,7 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='osmnet',
-    version='0.1.2',
+    version='0.1.3',
     license='AGPL',
     description=('Tools for the extraction of OpenStreetMap street network '
                  'data for use in Pandana accessibility analyses.'),

@@ -30,9 +30,11 @@ master_doc =  'index'
 project = u'OSMnet'
 copyright = u'2017, UrbanSim Inc.'
 author = u'UrbanSim Inc.'
-version = u'0.1.2'
-release = u'0.1.2'
+version = u'0.1.3'
+release = u'0.1.3'
 language = None
+
+nitpicky = True
 
 # List of patterns to ignore when looking for source files.
 exclude_patterns = ['_build']
