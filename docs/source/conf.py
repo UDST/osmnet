@@ -30,8 +30,8 @@ master_doc =  'index'
 project = u'OSMnet'
 copyright = u'2017, UrbanSim Inc.'
 author = u'UrbanSim Inc.'
-version = u'0.1a'
-release = u'0.1a.0'
+version = u'0.1.2'
+release = u'0.1.2'
 language = None
 
 # List of patterns to ignore when looking for source files.
