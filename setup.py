@@ -23,7 +23,8 @@ setup(
     url='https://github.com/UDST/osmnet',
     classifiers=[
         'Programming Language :: Python :: 2.7',
-        'Development Status :: 3 - Alpha'
+        'Programming Language :: Python :: 3.5',
+        'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],
     packages=find_packages(exclude=['*.tests']),
