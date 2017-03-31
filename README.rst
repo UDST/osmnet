@@ -32,8 +32,7 @@ Contributing to OSMnet
 If you have improvements or new features you would like to see in OSMnet:
 
 1. Open a feature request via `GitHub issues`_.
-2. Contribute your code from a fork or branch by using a Pull Request and
-request a review so it can be considered as an addition to the codebase.
+2. Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.
 
 Installation
 ------------
