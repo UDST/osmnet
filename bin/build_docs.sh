@@ -57,5 +57,7 @@ if [ "$TRAVIS_REPO_SLUG" == "UDST/osmnet" ] && \
 
         git commit -am "Update dev docs after building $TRAVIS_BUILD_NUMBER"
         echo "Pushing commit"
-        git push -fq origin gh-pages > /dev/null 2>&1
+        git push -fq origin gh-pages 
+	echo "Commit pushed"
+#> /dev/null 2>&1
 fi
