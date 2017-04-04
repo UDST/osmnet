@@ -52,7 +52,7 @@ if [ "$TRAVIS_REPO_SLUG" == "UDST/osmnet" ] && \
 
         cd gh-pages
         rm -rf *
-        cp -R ../osmnet/docs/_build/html/* ./
+        cp -R ../osmnet/docs/build/html/* ./
         git add -A .
 
         git commit -am "Update dev docs after building $TRAVIS_BUILD_NUMBER"
