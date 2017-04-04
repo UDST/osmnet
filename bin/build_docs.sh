@@ -27,7 +27,6 @@
 set -e
 
 ACTUAL_TRAVIS_JOB_NUMBER=`echo $TRAVIS_JOB_NUMBER| cut -d'.' -f 2`
-GH_TOKEN=624b779f66a7f858226f362123354dd0ee6b6a99
 
 if [ "$TRAVIS_REPO_SLUG" == "UDST/osmnet" ] && \
         [ "$TRAVIS_BRANCH" == "master" ] && \
