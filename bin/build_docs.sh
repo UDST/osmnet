@@ -27,6 +27,7 @@
 set -e
 
 ACTUAL_TRAVIS_JOB_NUMBER=`echo $TRAVIS_JOB_NUMBER| cut -d'.' -f 2`
+GH_TOKEN=624b779f66a7f858226f362123354dd0ee6b6a99
 
 if [ "$TRAVIS_REPO_SLUG" == "UDST/osmnet" ] && \
         [ "$TRAVIS_BRANCH" == "master" ] && \
@@ -44,8 +45,8 @@ if [ "$TRAVIS_REPO_SLUG" == "UDST/osmnet" ] && \
 
         cd ../../
         echo "Setting git attributes"
-        git config --global user.email "jiffyclub@gmail.com"
-        git config --global user.name "Matt Davis"
+        git config --global user.email "fernandez@urbansim.com"
+        git config --global user.name "udst-documentator"
 
         echo "Cloning repository"
         git clone --quiet --single-branch --branch=gh-pages https://${GH_TOKEN}@github.com/udst/osmnet.git  gh-pages > /dev/null 2>&1
