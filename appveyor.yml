@@ -17,7 +17,8 @@ install:
   - conda info -a
   - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy pandas pytest pyyaml"
   - activate test-environment
-  - pip install geopandas shapely pycodestyle
+  - conda install -c conda-forge shapely geopandas
+  - pip install pycodestyle
   - pip install .
 
 test_script:
