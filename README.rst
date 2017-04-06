@@ -1,7 +1,7 @@
 OSMnet
 ======
 
-|Build Status|
+|Build Status| |Appveyor Build Status|
 
 Tools for the extraction of OpenStreetMap (OSM) street network data.
 Intended to be used in tandem with Pandana and UrbanAccess libraries to
@@ -38,19 +38,19 @@ Installation
 ------------
 
 conda
-^^^^^^^^^^^^^
+^^^^^
 
 conda installation is forthcoming.
 
 pip
-^^^^^^^^^^^^^
+^^^
 
 OSMnet can be installed via PyPI:
 
 ``pip install osmnet``
 
 Development Installation
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 To install use the ``develop`` command rather than ``install``. Make sure you
 are using the latest version of the code base by using git’s ``git pull``
@@ -84,3 +84,6 @@ Related UDST libraries
 
 .. |Build Status| image:: https://travis-ci.org/UDST/osmnet.svg?branch=master
    :target: https://travis-ci.org/UDST/osmnet
+
+.. |Appveyor Build Status| image:: https://ci.appveyor.com/api/projects/status/acuoygyy3l0lqnpv/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/pksohn/osmnet
