@@ -163,8 +163,7 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     for json in response_jsons_list:
         try:
             response_jsons.extend(json['elements'])
-        except Exception:
-            log('Exception while stitching individual JSON results.')
+        except KeyError:
             pass
 
     # remove duplicate records resulting from the json stitching
@@ -711,8 +710,7 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
                 for tag in config.settings.keep_osm_tags:
                     try:
                         col_dict.update({tag: row[tag]})
-                    except Exception:
-                        log('Exception while updating dictionary (two-way).')
+                    except KeyError:
                         pass
 
                 pairs.append(col_dict)
@@ -726,9 +724,7 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
                     for tag in config.settings.keep_osm_tags:
                         try:
                             col_dict.update({tag: row[tag]})
-                        except Exception:
-                            log('Exception while updating dictionary '
-                                '(one-way).')
+                        except KeyError:
                             pass
 
                     pairs.append(col_dict)
