@@ -20,14 +20,14 @@ install:
   - conda install -c conda-forge shapely geopandas
   - pip install pycodestyle
   - pip install .
-  - "%PYTHON%\\python.exe -m pip install wheel"
+  - pip install wheel
 
 test_script:
   - pycodestyle osmnet
   - py.test
 
 after_test:
-  - "%PYTHON%\\python.exe setup.py bdist_wheel"
+  - "python.exe setup.py bdist_wheel"
 
 artifacts:
   # bdist_wheel puts your built wheel in the dist directory
