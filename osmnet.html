@@ -170,26 +170,32 @@
 <dt id="osmnet.load.network_from_bbox">
 <code class="descclassname">osmnet.load.</code><code class="descname">network_from_bbox</code><span class="sig-paren">(</span><em>lat_min=None</em>, <em>lng_min=None</em>, <em>lat_max=None</em>, <em>lng_max=None</em>, <em>bbox=None</em>, <em>network_type='walk'</em>, <em>two_way=True</em>, <em>timeout=180</em>, <em>memory=None</em>, <em>max_query_area_size=2500000000</em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.load.network_from_bbox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a graph network from a bounding lat/lon box composed of nodes and
-edges for use in Pandana street network accessibility calculations.</p>
+edges for use in Pandana street network accessibility calculations.
+You may either enter a lat/long box via the four lat_min,
+lng_min, lat_max, lng_max parameters or the bbox parameter as a tuple.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lat_min</strong> : float</p>
 <blockquote>
-<div><p>southern latitude of bounding box</p>
+<div><p>southern latitude of bounding box, if this parameter is used the bbox
+parameter should be None.</p>
 </div></blockquote>
 <p><strong>lng_min</strong> : float</p>
 <blockquote>
-<div><p>eastern latitude of bounding box</p>
+<div><p>eastern latitude of bounding box, if this parameter is used the bbox
+parameter should be None.</p>
 </div></blockquote>
 <p><strong>lat_max</strong> : float</p>
 <blockquote>
-<div><p>northern longitude of bounding box</p>
+<div><p>northern longitude of bounding box, if this parameter is used the bbox
+parameter should be None.</p>
 </div></blockquote>
 <p><strong>lng_max</strong> : float</p>
 <blockquote>
-<div><p>western longitude of bounding box</p>
+<div><p>western longitude of bounding box, if this parameter is used the bbox
+parameter should be None.</p>
 </div></blockquote>
 <p><strong>bbox</strong> : tuple</p>
 <blockquote>
@@ -197,7 +203,9 @@ edges for use in Pandana street network accessibility calculations.</p>
 (lng_max, lat_min, lng_min, lat_max)
 example: (-122.304611,37.798933,-122.263412,37.822802)
 a bbox can be extracted for an area using: the CSV format bbox from
-<a class="reference external" href="http://boundingbox.klokantech.com/">http://boundingbox.klokantech.com/</a></p>
+<a class="reference external" href="http://boundingbox.klokantech.com/">http://boundingbox.klokantech.com/</a>. If this parameter is used the
+lat_min, lng_min, lat_max, lng_max parameters in this function
+should be None.</p>
 </div></blockquote>
 <p><strong>network_type</strong> : {&#8216;walk&#8217;, &#8216;drive&#8217;}, optional</p>
 <blockquote>
