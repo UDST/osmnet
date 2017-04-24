@@ -745,23 +745,31 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     """
     Make a graph network from a bounding lat/lon box composed of nodes and
     edges for use in Pandana street network accessibility calculations.
+    You may either enter a lat/long box via the four lat_min,
+    lng_min, lat_max, lng_max parameters or the bbox parameter as a tuple.
 
     Parameters
     ----------
     lat_min : float
-        southern latitude of bounding box
+        southern latitude of bounding box, if this parameter is used the bbox
+        parameter should be None.
     lng_min : float
-        eastern latitude of bounding box
+        eastern latitude of bounding box, if this parameter is used the bbox
+        parameter should be None.
     lat_max : float
-        northern longitude of bounding box
+        northern longitude of bounding box, if this parameter is used the bbox
+        parameter should be None.
     lng_max : float
-        western longitude of bounding box
+        western longitude of bounding box, if this parameter is used the bbox
+        parameter should be None.
     bbox : tuple
         Bounding box formatted as a 4 element tuple:
         (lng_max, lat_min, lng_min, lat_max)
         example: (-122.304611,37.798933,-122.263412,37.822802)
         a bbox can be extracted for an area using: the CSV format bbox from
-        http://boundingbox.klokantech.com/
+        http://boundingbox.klokantech.com/. If this parameter is used the
+        lat_min, lng_min, lat_max, lng_max parameters in this function
+        should be None.
     network_type : {'walk', 'drive'}, optional
         Specify the network type where value of 'walk' includes roadways where
         pedestrians are allowed and pedestrian pathways and 'drive' includes
