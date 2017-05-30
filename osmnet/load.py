@@ -179,8 +179,8 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     response_jsons_df.reset_index(inplace=True)
     response_jsons = response_jsons_df.to_dict(orient='records')
     if record_count-len(response_jsons) > 0:
-        log('{} duplicate records removed. Took {:,.2f} seconds'
-            .format(record_count-len(response_jsons), time.time()-start_time))
+        log('{:,} duplicate records removed. Took {:,.2f} seconds'.format(
+            record_count-len(response_jsons), time.time()-start_time))
 
     return {'elements': response_jsons}
 
