@@ -69,7 +69,8 @@ def osm_filter(network_type):
 
 def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                      network_type='walk', timeout=180, memory=None,
-                     max_query_area_size=50*1000*50*1000):
+                     max_query_area_size=50*1000*50*1000,
+                     custom_osm_filter=None):
     """
     Download OSM ways and nodes within a bounding box from the Overpass API.
 
@@ -97,6 +98,8 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         in: any polygon bigger will get divided up for multiple queries to
         Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
         area, if units are meters))
+    custom_osm_filter : string, optional
+        specify custom arguments for the query to OSM
 
     Returns
     -------
@@ -105,7 +108,11 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
 
     # create a filter to exclude certain kinds of ways based on the requested
     # network_type
-    request_filter = osm_filter(network_type)
+    if custom_osm_filter is None:
+        request_filter = osm_filter(network_type)
+    else:
+        request_filter = custom_osm_filter
+
     response_jsons_list = []
     response_jsons = []
 
@@ -595,7 +602,8 @@ def parse_network_osm_query(data):
 
 def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
                  timeout=180, memory=None,
-                 max_query_area_size=50*1000*50*1000):
+                 max_query_area_size=50*1000*50*1000,
+                 custom_osm_filter=None):
     """
     Get DataFrames of OSM data in a bounding box.
 
@@ -623,6 +631,8 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
         in: any polygon bigger will get divided up for multiple queries to
         Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
         area, if units are meters))
+    custom_osm_filter : string, optional
+        specify custom arguments for the query to OSM
 
     Returns
     -------
@@ -633,7 +643,8 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
         osm_net_download(lat_max=lat_max, lat_min=lat_min, lng_min=lng_min,
                          lng_max=lng_max, network_type=network_type,
                          timeout=timeout, memory=memory,
-                         max_query_area_size=max_query_area_size))
+                         max_query_area_size=max_query_area_size,
+                         custom_osm_filter=custom_osm_filter))
 
 
 def intersection_nodes(waynodes):
@@ -741,7 +752,8 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
 def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                       bbox=None, network_type='walk', two_way=True,
                       timeout=180, memory=None,
-                      max_query_area_size=50*1000*50*1000):
+                      max_query_area_size=50*1000*50*1000,
+                      custom_osm_filter=None):
     """
     Make a graph network from a bounding lat/lon box composed of nodes and
     edges for use in Pandana street network accessibility calculations.
@@ -791,6 +803,8 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         remove low connectivity nodes from the resulting pandana network.
         This ensures the resulting network does not have nodes that are
         unconnected from the rest of the larger network
+    custom_osm_filter : string, optional
+        specify custom arguments for the query to OSM
 
     Returns
     -------
@@ -821,7 +835,8 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     nodes, ways, waynodes = ways_in_bbox(
         lat_min=lat_min, lng_min=lng_min, lat_max=lat_max, lng_max=lng_max,
         network_type=network_type, timeout=timeout,
-        memory=memory, max_query_area_size=max_query_area_size)
+        memory=memory, max_query_area_size=max_query_area_size,
+        custom_osm_filter=custom_osm_filter)
     log('Returning OSM data with {:,} nodes and {:,} ways...'
         .format(len(nodes), len(ways)))
 
