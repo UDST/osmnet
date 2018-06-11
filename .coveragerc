@@ -1,4 +1,4 @@
 [run]
 omit =
-    osmnet/tests/*
+    osmnet/**/tests/*
     */__init__.py

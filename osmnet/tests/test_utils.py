@@ -3,7 +3,6 @@ import logging as lg
 
 from osmnet.utils import great_circle_dist as gcd, log
 
-
 def test_gcd():
     # tested against geopy
     # https://geopy.readthedocs.org/en/latest/#module-geopy.distance
@@ -18,8 +17,7 @@ def test_gcd():
 
 
 def test_logging():
-
-    log('test debug error message', level=lg.DEBUG)
-    log('test info error message', level=lg.INFO)
-    log('test warning error message', level=lg.WARNING)
+    log('test debug message', level=lg.DEBUG)
+    log('test info message', level=lg.INFO)
+    log('test warning message', level=lg.WARNING)
     log('test error message', level=lg.ERROR)

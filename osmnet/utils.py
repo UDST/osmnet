@@ -76,7 +76,7 @@ def log(message, level=None, name=None, filename=None):
     if filename is None:
         filename = config.settings.log_filename
 
-    if config.settings.log_file:
+    if config.settings.log_file: # pragma: no cover
         # get the current logger or create a new one then log message at
         # requested level
         logger = get_logger(level=level, name=name, filename=filename)
