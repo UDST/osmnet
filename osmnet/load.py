@@ -177,17 +177,21 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     start_time = time.time()
     record_count = len(response_jsons)
 
-    response_jsons_df = pd.DataFrame.from_records(response_jsons, index='id')
-    nodes = response_jsons_df[response_jsons_df['type'] == 'node']
-    nodes = nodes[~nodes.index.duplicated(keep='first')]
-    ways = response_jsons_df[response_jsons_df['type'] == 'way']
-    ways = ways[~ways.index.duplicated(keep='first')]
-    response_jsons_df = pd.concat([nodes, ways], axis=0)
-    response_jsons_df.reset_index(inplace=True)
-    response_jsons = response_jsons_df.to_dict(orient='records')
-    if record_count-len(response_jsons) > 0:
-        log('{:,} duplicate records removed. Took {:,.2f} seconds'.format(
-            record_count-len(response_jsons), time.time()-start_time))
+    if record_count == 0:
+        raise Exception('Query resulted in no data. Check your query '
+                        'parameters: {}'.format(query_str))
+    else:
+        response_jsons_df = pd.DataFrame.from_records(response_jsons, index='id')
+        nodes = response_jsons_df[response_jsons_df['type'] == 'node']
+        nodes = nodes[~nodes.index.duplicated(keep='first')]
+        ways = response_jsons_df[response_jsons_df['type'] == 'way']
+        ways = ways[~ways.index.duplicated(keep='first')]
+        response_jsons_df = pd.concat([nodes, ways], axis=0)
+        response_jsons_df.reset_index(inplace=True)
+        response_jsons = response_jsons_df.to_dict(orient='records')
+        if record_count-len(response_jsons) > 0:
+            log('{:,} duplicate records removed. Took {:,.2f} seconds'.format(
+                record_count-len(response_jsons), time.time()-start_time))
 
     return {'elements': response_jsons}
 
