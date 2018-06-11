@@ -99,7 +99,10 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
         area, if units are meters))
     custom_osm_filter : string, optional
-        specify custom arguments for the query to OSM
+        specify custom arguments for the way["highway"] query to OSM. Must
+        follow overpass api schema. For
+        example to request highway ways that are service roads use:
+        '["highway"="service"]'
 
     Returns
     -------
@@ -636,7 +639,10 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
         Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
         area, if units are meters))
     custom_osm_filter : string, optional
-        specify custom arguments for the query to OSM
+        specify custom arguments for the way["highway"] query to OSM. Must
+        follow overpass api schema. For
+        example to request highway ways that are service roads use:
+        '["highway"="service"]'
 
     Returns
     -------
@@ -789,7 +795,8 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     network_type : {'walk', 'drive'}, optional
         Specify the network type where value of 'walk' includes roadways where
         pedestrians are allowed and pedestrian pathways and 'drive' includes
-        driveable roadways. Default is walk.
+        driveable roadways. To use a custom definition see the
+        custom_osm_filter parameter. Default is walk.
     two_way : bool, optional
         Whether the routes are two-way. If True, node pairs will only
         occur once.
@@ -803,12 +810,11 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         in: any polygon bigger will get divided up for multiple queries to
         Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
         area, if units are meters))
-    remove_lcn : bool, optional
-        remove low connectivity nodes from the resulting pandana network.
-        This ensures the resulting network does not have nodes that are
-        unconnected from the rest of the larger network
     custom_osm_filter : string, optional
-        specify custom arguments for the query to OSM
+        specify custom arguments for the way["highway"] query to OSM. Must
+        follow overpass api schema. For
+        example to request highway ways that are service roads use:
+        '["highway"="service"]'
 
     Returns
     -------
