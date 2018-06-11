@@ -3,6 +3,7 @@ import logging as lg
 
 from osmnet.utils import great_circle_dist as gcd, log
 
+
 def test_gcd():
     # tested against geopy
     # https://geopy.readthedocs.org/en/latest/#module-geopy.distance
