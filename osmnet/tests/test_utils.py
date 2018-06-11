@@ -1,6 +1,7 @@
 import numpy.testing as npt
+import logging as lg
 
-from osmnet.utils import great_circle_dist as gcd
+from osmnet.utils import great_circle_dist as gcd, log
 
 
 def test_gcd():
@@ -14,3 +15,11 @@ def test_gcd():
     expected = 864456.76162966
 
     npt.assert_allclose(gcd(lat1, lon1, lat2, lon2), expected)
+
+
+def test_logging():
+
+    log('test debug error message', level=lg.DEBUG)
+    log('test info error message', level=lg.INFO)
+    log('test warning error message', level=lg.WARNING)
+    log('test error message', level=lg.ERROR)
