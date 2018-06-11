@@ -91,7 +91,7 @@ def log(message, level=None, name=None, filename=None):
 
     # if logging to console is turned on, convert message to ascii and print
     # to the console only
-    if config.settings.log_console: # pragma: no cover
+    if config.settings.log_console:  # pragma: no cover
         # capture current stdout, then switch it to the console, print the
         # message, then switch back to what had been the stdout
         # this prevents logging to notebook - instead, it goes to console
