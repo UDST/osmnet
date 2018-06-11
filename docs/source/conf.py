@@ -30,8 +30,8 @@ master_doc =  'index'
 project = u'OSMnet'
 copyright = u'2017, UrbanSim Inc.'
 author = u'UrbanSim Inc.'
-version = u'0.1.4'
-release = u'0.1.4'
+version = u'0.1.5'
+release = u'0.1.5'
 language = None
 
 nitpicky = True
@@ -47,6 +47,7 @@ todo_include_todos = False
 # -- Options for HTML output ----------------------------------------------
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_show_sourcelink = False
 # html_theme_options = {}
 
 # paths that contain custom static files (such as style sheets)

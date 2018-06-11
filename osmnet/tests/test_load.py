@@ -296,3 +296,4 @@ def test_custom_query_pass(bbox5):
     )
     assert len(nodes) == 22
     assert len(edges) == 30
+    assert edges['highway'].unique() == 'service'

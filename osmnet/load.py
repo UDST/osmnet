@@ -1,4 +1,4 @@
-# The following functions to download osm data, setup an recursive api request
+# The following functions to download osm data, setup a recursive api request
 # and subdivide bbox queries into smaller bboxes were modified from the
 # osmnx library and used with permission from the author Geoff Boeing
 # osm_net_download, overpass_request, get_pause_duration,
@@ -100,7 +100,7 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         area, if units are meters))
     custom_osm_filter : string, optional
         specify custom arguments for the way["highway"] query to OSM. Must
-        follow overpass api schema. For
+        follow Overpass API schema. For
         example to request highway ways that are service roads use:
         '["highway"="service"]'
 
@@ -641,7 +641,7 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
         area, if units are meters))
     custom_osm_filter : string, optional
         specify custom arguments for the way["highway"] query to OSM. Must
-        follow overpass api schema. For
+        follow Overpass API schema. For
         example to request highway ways that are service roads use:
         '["highway"="service"]'
 
@@ -817,7 +817,7 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         area, if units are meters))
     custom_osm_filter : string, optional
         specify custom arguments for the way["highway"] query to OSM. Must
-        follow overpass api schema. For
+        follow Overpass API schema. For
         example to request highway ways that are service roads use:
         '["highway"="service"]'
 
