@@ -184,7 +184,8 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         raise Exception('Query resulted in no data. Check your query '
                         'parameters: {}'.format(query_str))
     else:
-        response_jsons_df = pd.DataFrame.from_records(response_jsons, index='id')
+        response_jsons_df = pd.DataFrame.from_records(response_jsons,
+                                                      index='id')
         nodes = response_jsons_df[response_jsons_df['type'] == 'node']
         nodes = nodes[~nodes.index.duplicated(keep='first')]
         ways = response_jsons_df[response_jsons_df['type'] == 'way']
@@ -192,9 +193,9 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         response_jsons_df = pd.concat([nodes, ways], axis=0)
         response_jsons_df.reset_index(inplace=True)
         response_jsons = response_jsons_df.to_dict(orient='records')
-        if record_count-len(response_jsons) > 0:
+        if record_count - len(response_jsons) > 0:
             log('{:,} duplicate records removed. Took {:,.2f} seconds'.format(
-                record_count-len(response_jsons), time.time()-start_time))
+                record_count - len(response_jsons), time.time() - start_time))
 
     return {'elements': response_jsons}
 
@@ -751,12 +752,16 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
                     pairs.append(col_dict)
 
     pairs = pd.DataFrame.from_records(pairs)
-    pairs.index = pd.MultiIndex.from_arrays([pairs['from_id'].values,
-                                             pairs['to_id'].values])
-    log('Edge node pairs completed. Took {:,.2f} seconds'
-        .format(time.time()-start_time))
+    if pairs.empty:
+        raise Exception('Query resulted in no connected node pairs. Check '
+                        'your query parameters or bounding box')
+    else:
+        pairs.index = pd.MultiIndex.from_arrays([pairs['from_id'].values,
+                                                 pairs['to_id'].values])
+        log('Edge node pairs completed. Took {:,.2f} seconds'
+            .format(time.time()-start_time))
 
-    return pairs
+        return pairs
 
 
 def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
