@@ -60,7 +60,8 @@ class osmnet_config(object):
                  log_filename='osmnet',
                  keep_osm_tags=['name', 'ref', 'highway', 'service', 'bridge',
                                 'tunnel', 'access', 'oneway', 'toll', 'lanes',
-                                'maxspeed', 'hgv', 'hov']):
+                                'maxspeed', 'hgv', 'hov', 'area', 'width',
+                                'est_width', 'junction']):
 
         self.logs_folder = logs_folder
         self.log_file = log_file

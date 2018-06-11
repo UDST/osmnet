@@ -1,7 +1,7 @@
 OSMnet
 ======
 
-|Build Status| |Appveyor Build Status|
+|Build Status|  |Coverage Status|  |Appveyor Build Status|
 
 Tools for the extraction of OpenStreetMap (OSM) street network data.
 Intended to be used in tandem with Pandana and UrbanAccess libraries to
@@ -91,3 +91,6 @@ Related UDST libraries
 
 .. |Appveyor Build Status| image:: https://ci.appveyor.com/api/projects/status/acuoygyy3l0lqnpv/branch/master?svg=true
    :target: https://ci.appveyor.com/project/pksohn/osmnet
+
+.. |Coverage Status| image:: https://coveralls.io/repos/github/UDST/osmnet/badge.svg?branch=master
+   :target: https://coveralls.io/github/UDST/osmnet?branch=master

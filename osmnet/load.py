@@ -1,4 +1,4 @@
-# The following functions to download osm data, setup an recursive api request
+# The following functions to download osm data, setup a recursive api request
 # and subdivide bbox queries into smaller bboxes were modified from the
 # osmnx library and used with permission from the author Geoff Boeing
 # osm_net_download, overpass_request, get_pause_duration,
@@ -99,7 +99,10 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
         area, if units are meters))
     custom_osm_filter : string, optional
-        specify custom arguments for the query to OSM
+        specify custom arguments for the way["highway"] query to OSM. Must
+        follow Overpass API schema. For
+        example to request highway ways that are service roads use:
+        '["highway"="service"]'
 
     Returns
     -------
@@ -177,17 +180,22 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     start_time = time.time()
     record_count = len(response_jsons)
 
-    response_jsons_df = pd.DataFrame.from_records(response_jsons, index='id')
-    nodes = response_jsons_df[response_jsons_df['type'] == 'node']
-    nodes = nodes[~nodes.index.duplicated(keep='first')]
-    ways = response_jsons_df[response_jsons_df['type'] == 'way']
-    ways = ways[~ways.index.duplicated(keep='first')]
-    response_jsons_df = pd.concat([nodes, ways], axis=0)
-    response_jsons_df.reset_index(inplace=True)
-    response_jsons = response_jsons_df.to_dict(orient='records')
-    if record_count-len(response_jsons) > 0:
-        log('{:,} duplicate records removed. Took {:,.2f} seconds'.format(
-            record_count-len(response_jsons), time.time()-start_time))
+    if record_count == 0:
+        raise Exception('Query resulted in no data. Check your query '
+                        'parameters: {}'.format(query_str))
+    else:
+        response_jsons_df = pd.DataFrame.from_records(response_jsons,
+                                                      index='id')
+        nodes = response_jsons_df[response_jsons_df['type'] == 'node']
+        nodes = nodes[~nodes.index.duplicated(keep='first')]
+        ways = response_jsons_df[response_jsons_df['type'] == 'way']
+        ways = ways[~ways.index.duplicated(keep='first')]
+        response_jsons_df = pd.concat([nodes, ways], axis=0)
+        response_jsons_df.reset_index(inplace=True)
+        response_jsons = response_jsons_df.to_dict(orient='records')
+        if record_count - len(response_jsons) > 0:
+            log('{:,} duplicate records removed. Took {:,.2f} seconds'.format(
+                record_count - len(response_jsons), time.time() - start_time))
 
     return {'elements': response_jsons}
 
@@ -632,7 +640,10 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
         Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
         area, if units are meters))
     custom_osm_filter : string, optional
-        specify custom arguments for the query to OSM
+        specify custom arguments for the way["highway"] query to OSM. Must
+        follow Overpass API schema. For
+        example to request highway ways that are service roads use:
+        '["highway"="service"]'
 
     Returns
     -------
@@ -741,12 +752,16 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
                     pairs.append(col_dict)
 
     pairs = pd.DataFrame.from_records(pairs)
-    pairs.index = pd.MultiIndex.from_arrays([pairs['from_id'].values,
-                                             pairs['to_id'].values])
-    log('Edge node pairs completed. Took {:,.2f} seconds'
-        .format(time.time()-start_time))
+    if pairs.empty:
+        raise Exception('Query resulted in no connected node pairs. Check '
+                        'your query parameters or bounding box')
+    else:
+        pairs.index = pd.MultiIndex.from_arrays([pairs['from_id'].values,
+                                                 pairs['to_id'].values])
+        log('Edge node pairs completed. Took {:,.2f} seconds'
+            .format(time.time()-start_time))
 
-    return pairs
+        return pairs
 
 
 def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
@@ -785,7 +800,8 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     network_type : {'walk', 'drive'}, optional
         Specify the network type where value of 'walk' includes roadways where
         pedestrians are allowed and pedestrian pathways and 'drive' includes
-        driveable roadways. Default is walk.
+        driveable roadways. To use a custom definition see the
+        custom_osm_filter parameter. Default is walk.
     two_way : bool, optional
         Whether the routes are two-way. If True, node pairs will only
         occur once.
@@ -799,12 +815,11 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         in: any polygon bigger will get divided up for multiple queries to
         Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
         area, if units are meters))
-    remove_lcn : bool, optional
-        remove low connectivity nodes from the resulting pandana network.
-        This ensures the resulting network does not have nodes that are
-        unconnected from the rest of the larger network
     custom_osm_filter : string, optional
-        specify custom arguments for the query to OSM
+        specify custom arguments for the way["highway"] query to OSM. Must
+        follow Overpass API schema. For
+        example to request highway ways that are service roads use:
+        '["highway"="service"]'
 
     Returns
     -------
