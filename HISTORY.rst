@@ -1,3 +1,13 @@
+v0.1.5
+======
+
+2018/6/15
+
+* adds custom_osm_filter parameter
+* update default keep_osm_tags list to include more tags including area
+* add new exceptions to catch for queries that return bad/no data
+* add coveralls support
+
 v0.1.4
 ======
 
