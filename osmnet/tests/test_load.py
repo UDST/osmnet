@@ -189,7 +189,7 @@ def test_overpass_request_raises(bbox5):
 def test_get_pause_duration():
     error_pause_duration = load.get_pause_duration(recursive_delay=5,
                                                    default_duration=10)
-    assert error_pause_duration == 0
+    assert error_pause_duration >= 0
 
 
 def test_quadrat_cut_geometry(simple_polygon):
