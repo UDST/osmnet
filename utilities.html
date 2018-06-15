@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Utilities &mdash; OSMnet 0.1.4 documentation</title>
+  <title>Utilities &mdash; OSMnet 0.1.5 documentation</title>
   
 
   
@@ -24,26 +24,18 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="OSMnet 0.1.4 documentation" href="index.html"/>
-        <link rel="prev" title="Using OSMnet" href="osmnet.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Using OSMnet" href="osmnet.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -65,7 +57,7 @@
             
             
               <div class="version">
-                0.1.4
+                0.1.5
               </div>
             
           
@@ -105,7 +97,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">OSMnet</a>
@@ -113,9 +105,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -169,72 +162,64 @@ for osmnet.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>logs_folder</strong> : str</p>
-<blockquote>
-<div><p>location to write log files</p>
-</div></blockquote>
-<p><strong>log_file</strong> : bool</p>
-<blockquote>
-<div><p>if true, save log output to a log file in logs_folder</p>
-</div></blockquote>
-<p><strong>log_console</strong> : bool</p>
-<blockquote>
-<div><p>if true, print log output to the console</p>
-</div></blockquote>
-<p><strong>log_name</strong> : str</p>
-<blockquote>
-<div><p>name of the logger</p>
-</div></blockquote>
-<p><strong>log_filename</strong> : str</p>
-<blockquote>
-<div><p>name of the log file</p>
-</div></blockquote>
-<p><strong>keep_osm_tags</strong> : list</p>
-<blockquote class="last">
-<div><p>list of OpenStreetMap tags to save from way elements and preserve in
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>logs_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">location to write log files</p>
+</dd>
+<dt><strong>log_file</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">if true, save log output to a log file in logs_folder</p>
+</dd>
+<dt><strong>log_console</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">if true, print log output to the console</p>
+</dd>
+<dt><strong>log_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">name of the logger</p>
+</dd>
+<dt><strong>log_filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">name of the log file</p>
+</dd>
+<dt><strong>keep_osm_tags</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">list of OpenStreetMap tags to save from way elements and preserve in
 network edge table</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
-<p>By default the global configuration settings are already set, however they can be changed by using the functions in the <code class="docutils literal"><span class="pre">osmnet_config</span></code> class:</p>
+<p>By default the global configuration settings are already set, however they can be changed by using the functions in the <code class="docutils literal notranslate"><span class="pre">osmnet_config</span></code> class:</p>
 <dl class="class">
 <dt id="osmnet.config.osmnet_config">
-<em class="property">class </em><code class="descclassname">osmnet.config.</code><code class="descname">osmnet_config</code><span class="sig-paren">(</span><em>logs_folder='logs', log_file=True, log_console=False, log_name='osmnet', log_filename='osmnet', keep_osm_tags=['name', 'ref', 'highway', 'service', 'bridge', 'tunnel', 'access', 'oneway', 'toll', 'lanes', 'maxspeed', 'hgv', 'hov']</em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.config.osmnet_config" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">osmnet.config.</code><code class="descname">osmnet_config</code><span class="sig-paren">(</span><em>logs_folder='logs', log_file=True, log_console=False, log_name='osmnet', log_filename='osmnet', keep_osm_tags=['name', 'ref', 'highway', 'service', 'bridge', 'tunnel', 'access', 'oneway', 'toll', 'lanes', 'maxspeed', 'hgv', 'hov', 'area', 'width', 'est_width', 'junction']</em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.config.osmnet_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set of configuration variables to initiate the configuration settings
 for osmnet.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>logs_folder</strong> : str</p>
-<blockquote>
-<div><p>location to write log files</p>
-</div></blockquote>
-<p><strong>log_file</strong> : bool</p>
-<blockquote>
-<div><p>if true, save log output to a log file in logs_folder</p>
-</div></blockquote>
-<p><strong>log_console</strong> : bool</p>
-<blockquote>
-<div><p>if true, print log output to the console</p>
-</div></blockquote>
-<p><strong>log_name</strong> : str</p>
-<blockquote>
-<div><p>name of the logger</p>
-</div></blockquote>
-<p><strong>log_filename</strong> : str</p>
-<blockquote>
-<div><p>name of the log file</p>
-</div></blockquote>
-<p><strong>keep_osm_tags</strong> : list</p>
-<blockquote class="last">
-<div><p>list of OpenStreetMap tags to save from way elements and preserve in
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>logs_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">location to write log files</p>
+</dd>
+<dt><strong>log_file</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">if true, save log output to a log file in logs_folder</p>
+</dd>
+<dt><strong>log_console</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">if true, print log output to the console</p>
+</dd>
+<dt><strong>log_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">name of the logger</p>
+</dd>
+<dt><strong>log_filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">name of the log file</p>
+</dd>
+<dt><strong>keep_osm_tags</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">list of OpenStreetMap tags to save from way elements and preserve in
 network edge table</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -251,9 +236,7 @@ network edge table</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -290,7 +273,8 @@ network edge table</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.1.4',
+            VERSION:'0.1.5',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -300,23 +284,17 @@ network edge table</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

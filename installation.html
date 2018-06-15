@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; OSMnet 0.1.4 documentation</title>
+  <title>Installation &mdash; OSMnet 0.1.5 documentation</title>
   
 
   
@@ -24,27 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="OSMnet 0.1.4 documentation" href="index.html"/>
-        <link rel="next" title="Introduction" href="introduction.html"/>
-        <link rel="prev" title="OSMnet" href="index.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Introduction" href="introduction.html" />
+    <link rel="prev" title="OSMnet" href="index.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -66,7 +58,7 @@
             
             
               <div class="version">
-                0.1.4
+                0.1.5
               </div>
             
           
@@ -117,7 +109,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">OSMnet</a>
@@ -125,9 +117,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -184,10 +177,10 @@
 </div>
 <div class="section" id="note-for-windows-users-when-installing-dependencies">
 <h2>Note for Windows Users when Installing Dependencies<a class="headerlink" href="#note-for-windows-users-when-installing-dependencies" title="Permalink to this headline">¶</a></h2>
-<p>If you are a Windows user and you find when importing osmnet you see an error like this: <code class="docutils literal"><span class="pre">ImportError:</span> <span class="pre">DLL</span> <span class="pre">load</span> <span class="pre">failed:</span> <span class="pre">The</span> <span class="pre">specified</span> <span class="pre">module</span> <span class="pre">could</span> <span class="pre">not</span> <span class="pre">be</span> <span class="pre">found.</span></code> Most likely one of osmnet&#8217;s dependencies did not install or compile correctly on your Windows machine. <code class="docutils literal"><span class="pre">geopandas</span></code> requires the dependency package <code class="docutils literal"><span class="pre">fiona</span></code> which requires the dependency package <code class="docutils literal"><span class="pre">gdal</span></code>. Windows users should not install these dependencies via conda or pip, instead you should download and install these packages via <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">Christoph Gohlke Windows python wheels</a>: <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal">GDAL Windows Wheel</a> and <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#fiona">Fiona Windows Wheel</a>. Download the package that matched your python version and Windows system architecture, then cd into the download directory and install each package using: <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">Fiona-1.7.6-cp27-cp27m-win_amd64.whl</span></code> and
-<code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">GDAL-2.1.3-cp27-cp27m-win_amd64.whl</span></code>
-If you have already installed these packaged via conda or pip, force a reinstall: <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">Fiona-1.7.6-cp27-cp27m-win_amd64.whl</span> <span class="pre">--upgrade</span> <span class="pre">--force-reinstall</span></code> and
-<code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">GDAL-2.1.3-cp27-cp27m-win_amd64.whl</span> <span class="pre">--upgrade</span> <span class="pre">--force-reinstall</span></code></p>
+<p>If you are a Windows user and you find when importing osmnet you see an error like this: <code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">DLL</span> <span class="pre">load</span> <span class="pre">failed:</span> <span class="pre">The</span> <span class="pre">specified</span> <span class="pre">module</span> <span class="pre">could</span> <span class="pre">not</span> <span class="pre">be</span> <span class="pre">found.</span></code> Most likely one of osmnet’s dependencies did not install or compile correctly on your Windows machine. <code class="docutils literal notranslate"><span class="pre">geopandas</span></code> requires the dependency package <code class="docutils literal notranslate"><span class="pre">fiona</span></code> which requires the dependency package <code class="docutils literal notranslate"><span class="pre">gdal</span></code>. Windows users should not install these dependencies via conda or pip, instead you should download and install these packages via <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">Christoph Gohlke Windows python wheels</a>: <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal">GDAL Windows Wheel</a> and <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#fiona">Fiona Windows Wheel</a>. Download the package that matches your Python version and Windows system architecture, then cd into the download directory and install each package for example using: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">Fiona-1.7.6-cp27-cp27m-win_amd64.whl</span></code> and
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">GDAL-2.1.3-cp27-cp27m-win_amd64.whl</span></code>
+If you have already installed these packaged via conda or pip, force a reinstall: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">Fiona-1.7.6-cp27-cp27m-win_amd64.whl</span> <span class="pre">--upgrade</span> <span class="pre">--force-reinstall</span></code> and
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">GDAL-2.1.3-cp27-cp27m-win_amd64.whl</span> <span class="pre">--upgrade</span> <span class="pre">--force-reinstall</span></code></p>
 </div>
 <div class="section" id="current-status">
 <h2>Current status<a class="headerlink" href="#current-status" title="Permalink to this headline">¶</a></h2>
@@ -205,29 +198,27 @@ If you have already installed these packaged via conda or pip, force a reinstall
 <div class="section" id="pip">
 <h3>pip<a class="headerlink" href="#pip" title="Permalink to this headline">¶</a></h3>
 <p>OSMnet can be installed via PyPI:</p>
-<p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">osmnet</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">osmnet</span></code></p>
 </div>
 <div class="section" id="development-installation">
 <h3>Development Installation<a class="headerlink" href="#development-installation" title="Permalink to this headline">¶</a></h3>
-<p>To install use the <code class="docutils literal"><span class="pre">develop</span></code> command rather than <code class="docutils literal"><span class="pre">install</span></code>. Make sure you
-are using the latest version of the code base by using git’s <code class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span></code>
+<p>To install use the <code class="docutils literal notranslate"><span class="pre">develop</span></code> command rather than <code class="docutils literal notranslate"><span class="pre">install</span></code>. Make sure you
+are using the latest version of the codebase by using git’s <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code>
 inside the cloned repository.</p>
 <p>To install OSMnet follow these steps:</p>
 <ol class="arabic simple">
 <li>Git clone the <a class="reference external" href="https://github.com/udst/osmnet">OSMnet repo</a></li>
-<li>in the cloned directory run: <code class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code></li>
+<li>in the cloned directory run: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code> or without dependencies: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span> <span class="pre">--no-deps</span></code></li>
 </ol>
 <p>To update to the latest version:</p>
-<p>Use <code class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span></code> inside the cloned repository</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> inside the cloned repository</p>
 </div>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -266,7 +257,8 @@ inside the cloned repository.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.1.4',
+            VERSION:'0.1.5',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -276,23 +268,17 @@ inside the cloned repository.</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>
