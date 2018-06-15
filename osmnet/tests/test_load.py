@@ -1,6 +1,7 @@
 import numpy.testing as npt
 import pandas.util.testing as pdt
 import pytest
+import shapely.geometry as geometry
 
 import osmnet.load as load
 
@@ -32,6 +33,18 @@ def bbox3():
 def bbox4():
     return (-122.2762870789, 37.8211879615,
             -122.2701716423, 37.8241329692)
+
+
+@pytest.fixture
+def bbox5():
+    return (-122.2965574674, 37.8038112007,
+            -122.2935963086, 37.8056400922)
+
+
+@pytest.fixture
+def simple_polygon():
+    polygon = geometry.Polygon([[0, 0], [1, 0], [1, 1], [0, 1]])
+    return polygon
 
 
 @pytest.fixture(scope='module')
@@ -72,11 +85,11 @@ def dataframes2(query_data2):
 
 def test_make_osm_query(query_data1):
     assert isinstance(query_data1, dict)
-    assert len(query_data1['elements']) == 42
+    assert len(query_data1['elements']) == 26
     assert len([e for e in query_data1['elements']
-                if e['type'] == 'node']) == 39
+                if e['type'] == 'node']) == 22
     assert len([e for e in query_data1['elements']
-                if e['type'] == 'way']) == 3
+                if e['type'] == 'way']) == 4
 
 
 def test_process_node():
@@ -142,9 +155,9 @@ def test_process_way():
 def test_parse_network_osm_query(dataframes1):
     nodes, ways, waynodes = dataframes1
 
-    assert len(nodes) == 39
-    assert len(ways) == 3
-    assert len(waynodes.index.unique()) == 3
+    assert len(nodes) == 22
+    assert len(ways) == 4
+    assert len(waynodes.index.unique()) == 4
 
 
 def test_parse_network_osm_query_raises():
@@ -158,6 +171,35 @@ def test_parse_network_osm_query_raises():
     data = load.overpass_request(data={'data': query_str})
     with pytest.raises(RuntimeError):
         load.parse_network_osm_query(data)
+
+
+def test_overpass_request_raises(bbox5):
+    lat_min, lng_max, lat_max, lng_min = bbox5
+    query_template = '[out:json][timeout:{timeout}]{maxsize};(way["highway"]' \
+                     '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},' \
+                     '{lng_min:.8f});>;);out;'
+    query_str = query_template.format(lat_max=lat_max, lat_min=lat_min,
+                                      lng_min=lng_min, lng_max=lng_max,
+                                      filters=load.osm_filter('walk'),
+                                      timeout=0, maxsize='')
+    with pytest.raises(Exception):
+        load.overpass_request(data={'data': query_str})
+
+
+def test_get_pause_duration():
+    error_pause_duration = load.get_pause_duration(recursive_delay=5,
+                                                   default_duration=10)
+    assert error_pause_duration >= 0
+
+
+def test_quadrat_cut_geometry(simple_polygon):
+    multipolygon = load.quadrat_cut_geometry(geometry=simple_polygon,
+                                             quadrat_width=0.5,
+                                             min_num=3,
+                                             buffer_amount=1e-9)
+
+    assert isinstance(multipolygon, geometry.MultiPolygon)
+    assert len(multipolygon) == 4
 
 
 def test_ways_in_bbox(bbox1, dataframes1):
@@ -246,3 +288,12 @@ def test_column_names(bbox4):
     col_list = ['distance', 'from', 'to']
     for col in col_list:
         assert col in edges.columns
+
+
+def test_custom_query_pass(bbox5):
+    nodes, edges = load.network_from_bbox(
+        bbox=bbox5, custom_osm_filter='["highway"="service"]'
+    )
+    assert len(nodes) == 22
+    assert len(edges) == 30
+    assert edges['highway'].unique() == 'service'
