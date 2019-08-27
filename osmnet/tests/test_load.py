@@ -85,9 +85,9 @@ def dataframes2(query_data2):
 
 def test_make_osm_query(query_data1):
     assert isinstance(query_data1, dict)
-    assert len(query_data1['elements']) == 26
+    assert len(query_data1['elements']) == 27
     assert len([e for e in query_data1['elements']
-                if e['type'] == 'node']) == 22
+                if e['type'] == 'node']) == 23
     assert len([e for e in query_data1['elements']
                 if e['type'] == 'way']) == 4
 
@@ -155,7 +155,7 @@ def test_process_way():
 def test_parse_network_osm_query(dataframes1):
     nodes, ways, waynodes = dataframes1
 
-    assert len(nodes) == 22
+    assert len(nodes) == 23
     assert len(ways) == 4
     assert len(waynodes.index.unique()) == 4
 
@@ -294,6 +294,6 @@ def test_custom_query_pass(bbox5):
     nodes, edges = load.network_from_bbox(
         bbox=bbox5, custom_osm_filter='["highway"="service"]'
     )
-    assert len(nodes) == 22
-    assert len(edges) == 30
+    assert len(nodes) == 24
+    assert len(edges) == 32
     assert edges['highway'].unique() == 'service'
