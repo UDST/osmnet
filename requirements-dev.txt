@@ -1,0 +1,4 @@
+coveralls
+pycodestyle
+pytest
+pytest-cov
