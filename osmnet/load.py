@@ -107,6 +107,7 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     Returns
     -------
     response_json : dict
+        Returns response_json as a value of dict with key 'elements'
     """
 
     # create a filter to exclude certain kinds of ways based on the requested
@@ -345,7 +346,7 @@ def consolidate_subdivide_geometry(geometry, max_query_area_size):
 
     Returns
     -------
-    geometry : Polygon or MultiPolygon
+    geometry : Shapely Polygon or MultiPolygon
     """
 
     # let the linear length of the quadrats (with which to subdivide the
@@ -353,7 +354,7 @@ def consolidate_subdivide_geometry(geometry, max_query_area_size):
     quadrat_width = math.sqrt(max_query_area_size)
 
     if not isinstance(geometry, (Polygon, MultiPolygon)):
-        raise ValueError('Geometry must be a shapely Polygon or MultiPolygon')
+        raise ValueError('Geometry must be a Shapely Polygon or MultiPolygon')
 
     # if geometry is a MultiPolygon OR a single Polygon whose area exceeds
     # the max size, get the convex hull around the geometry
@@ -394,7 +395,7 @@ def quadrat_cut_geometry(geometry, quadrat_width, min_num=3,
 
     Returns
     -------
-    multipoly : shapely MultiPolygon
+    multipoly : Shapely MultiPolygon
     """
 
     # create n evenly spaced points between the min and max x and y bounds
@@ -431,13 +432,13 @@ def project_geometry(geometry, crs, to_latlong=False):
         the geometry to project
     crs : int
         the starting coordinate reference system of the passed-in geometry
-    to_latlong : bool
+    to_latlong : bool, optional
         if True, project from crs to WGS84, if False, project
         from crs to local UTM zone
 
     Returns
     -------
-    geometry_proj, crs : tuple (projected shapely geometry, crs of the
+    geometry_proj, crs : tuple (projected Shapely geometry, crs of the
     projected geometry)
     """
     gdf = gpd.GeoDataFrame()
@@ -460,12 +461,14 @@ def project_gdf(gdf, to_latlong=False, verbose=False):
     ----------
     gdf : GeoDataFrame
         the gdf to be projected to UTM
-    to_latlong : bool
+    to_latlong : bool, optional
         if True, projects to WGS84 instead of to UTM
+    verbose : bool, optional
+        if False, turns off log and print statements for this function
 
     Returns
     -------
-    gdf : GeoDataFrame
+    projected_gdf : GeoDataFrame
     """
     assert len(gdf) > 0, 'You cannot project an empty GeoDataFrame.'
     start_time = time.time()
@@ -518,7 +521,7 @@ def process_node(e):
 
     Parameters
     ----------
-    e : dict
+    node : dict
         individual node element in downloaded OSM json
 
     Returns
@@ -583,7 +586,8 @@ def parse_network_osm_query(data):
 
     Returns
     -------
-    nodes, ways, waynodes : pandas.DataFrame
+    (nodes, ways, waynodes) : pandas.DataFrame
+        nodes, ways, waynodes as a tuple of pandas.DataFrames
 
     """
     if len(data['elements']) == 0:
@@ -781,10 +785,10 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         southern latitude of bounding box, if this parameter is used the bbox
         parameter should be None.
     lng_min : float
-        eastern latitude of bounding box, if this parameter is used the bbox
+        eastern longitude of bounding box, if this parameter is used the bbox
         parameter should be None.
     lat_max : float
-        northern longitude of bounding box, if this parameter is used the bbox
+        northern latitude of bounding box, if this parameter is used the bbox
         parameter should be None.
     lng_max : float
         western longitude of bounding box, if this parameter is used the bbox

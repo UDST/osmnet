@@ -43,7 +43,11 @@ Installation
 conda
 ^^^^^
 
-conda installation is forthcoming.
+OSMnet is available on conda and can be installed with:
+
+``conda install osmnet --channel conda-forge``
+
+It is recommended to install via conda and the conda-forge channel especially if you find you are having issues installing some of the spatial dependencies.
 
 pip
 ^^^

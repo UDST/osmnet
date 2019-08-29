@@ -26,9 +26,9 @@ extensions = [
 
 templates_path = ['_templates']
 source_suffix = '.rst'
-master_doc =  'index'
+master_doc = 'index'
 project = u'OSMnet'
-copyright = u'2017, UrbanSim Inc.'
+copyright = u'2019, UrbanSim Inc.'
 author = u'UrbanSim Inc.'
 version = u'0.1.5'
 release = u'0.1.5'

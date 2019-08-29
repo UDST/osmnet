@@ -26,7 +26,7 @@ def great_circle_dist(lat1, lon1, lat2, lon2):
 
     Returns
     -------
-    dist : float
+    d : float
         Distance in meters.
 
     """
