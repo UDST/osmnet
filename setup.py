@@ -34,7 +34,7 @@ setup(
         'requests >= 2.9.1',
         'pandas >= 0.16.0',
         'numpy>=1.10',
-        'geopandas>=0.2.1',
+        'geopandas>=0.7',
         'Shapely>=1.5'
     ]
 )
