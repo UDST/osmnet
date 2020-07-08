@@ -1,9 +1,12 @@
-# requirements for development and testing
+# Additional requirements for development and testing
 
+# testing
 coveralls
-numpydoc
 pycodestyle
 pytest
 pytest-cov
+
+# building documentation
+numpydoc
 sphinx
 sphinx_rtd_theme

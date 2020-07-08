@@ -4,12 +4,8 @@ python:
   - '2.7'
   - '3.5'
   - '3.6'
-
-matrix:
-  include:
-    - python: "3.7"  # temp solution to test in python 3.7
-      dist: xenial
-      sudo: true
+  - '3.7'
+  - '3.8'
 
 install:
   - pip install .
@@ -18,9 +14,8 @@ install:
   - pip show osmnet
 
 script:
-  - pycodestyle osmnet
+  - pycodestyle --max-line-length=100 osmnet
   - py.test --cov osmnet --cov-report term-missing
 
 after_success:
   - coveralls
-  - bin/build_docs.sh
