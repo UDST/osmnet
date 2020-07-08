@@ -25,6 +25,7 @@ setup(
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],
     packages=find_packages(exclude=['*.tests']),
+    python_requires='>=3',
     install_requires=[
         'geopandas >= 0.2.1',
         'numpy >= 1.10',
