@@ -497,9 +497,8 @@ def project_gdf(gdf, to_crs=None, to_latlong=False):
 
         # calculate UTM zone from avg longitude to define CRS to project to
         utm_zone = int(math.floor((avg_lng + 180) / 6.0) + 1)
-        utm_crs = (
-            f"+proj=utm +zone={utm_zone} +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
-        )
+        utm_crs = ('+proj=utm +zone={} +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
+                   .format(utm_zone))
 
         # project the GeoDataFrame to the UTM CRS
         gdf_proj = gdf.to_crs(utm_crs)
