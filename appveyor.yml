@@ -2,33 +2,24 @@ build: false
 
 environment:
   matrix:
-    - PYTHON_VERSION: 2.7
-      MINICONDA: C:\Miniconda
-    - PYTHON_VERSION: 3.5
-      MINICONDA: C:\Miniconda3
+    - PYTHON: 3.8
 
 init:
-  - "ECHO %PYTHON_VERSION% %MINICONDA%"
+  - "ECHO %PYTHON%"
+
+# The goal here is to make sure updates to OSMnet don't introduce any Windows-specific
+# runtime errors; the Travis tests running in Linux are more comprehensive. Dependencies
+# are installed manually here because the shapely/geopandas stack doesn't install well
+# via Pip on Windows. Only using one Python version because AppVeyor builds don't run in
+# parallel and can be slow.
 
 install:
-  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  - conda info -a
-  - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy pandas pytest pyyaml"
-  - activate test-environment
-  - conda install -c conda-forge shapely geopandas
-  - pip install pycodestyle
+  - "set PATH=C:\\Miniconda3;C:\\Miniconda3\\Scripts;%PATH%"
+  - conda config --append channels conda-forge
+  - "conda create --name test-env python=%PYTHON% pip geopandas numpy pandas pytest requests shapely --yes --quiet"
+  - activate test-env
   - pip install .
-  - pip install wheel
+  - conda list
 
 test_script:
-  - pycodestyle osmnet
   - py.test
-
-after_test:
-  - "python.exe setup.py bdist_wheel"
-
-artifacts:
-  # bdist_wheel puts your built wheel in the dist directory
-  - path: dist\*
