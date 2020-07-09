@@ -751,14 +751,9 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
     """
     start_time = time.time()
 
-<<<<<<< HEAD
     def pairwise(ls):
         return zip(islice(ls, 0, len(ls)), islice(ls, 1, None))
-=======
-    def pairwise(l):
-        return zip(islice(l, 0, len(l)), islice(l, 1, None))
 
->>>>>>> dev
     intersections = intersection_nodes(waynodes)
     waymap = waynodes.groupby(level=0, sort=False)
     pairs = []
@@ -901,27 +896,12 @@ def network_from_bbox(
     start_time = time.time()
 
     if bbox is not None:
-<<<<<<< HEAD
         assert isinstance(bbox, tuple) \
                and len(bbox) == 4, 'bbox must be a 4 element tuple'
         assert (lat_min is None) and (lng_min is None) and \
                (lat_max is None) and (lng_max is None), \
                'lat_min, lng_min, lat_max and lng_max must be None ' \
                'if you are using bbox'
-=======
-        assert (
-            isinstance(bbox, tuple) and len(bbox) == 4
-        ), "bbox must be a 4 element tuple"
-        assert (
-            (lat_min is None)
-            and (lng_min is None)
-            and (lat_max is None)
-            and (lng_max is None)
-        ), (
-            "lat_min, lng_min, lat_max and lng_max must be None "
-            "if you are using bbox"
-        )
->>>>>>> dev
 
         lng_max, lat_min, lng_min, lat_max = bbox
 
