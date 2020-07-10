@@ -1,3 +1,11 @@
+v0.1.6
+======
+
+2020/7/10
+
+* adds support for GeoPandas v0.7 and later
+* ends support for Python 2.7
+
 v0.1.5
 ======
 

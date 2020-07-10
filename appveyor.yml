@@ -14,7 +14,7 @@ init:
 # parallel and can be slow.
 
 install:
-  - "set PATH=C:\\Miniconda3;C:\\Miniconda3\\Scripts;%PATH%"
+  - "set PATH=C:\\Miniconda36-x64;C:\\Miniconda36-x64\\Scripts;%PATH%"
   - "conda create --name test-env python=%PYTHON% pip --yes --quiet"
   - activate test-env
   - conda install geopandas numpy pandas pytest requests shapely --channel conda-forge --yes --quiet
