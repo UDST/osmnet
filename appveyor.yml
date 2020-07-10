@@ -15,9 +15,9 @@ init:
 
 install:
   - "set PATH=C:\\Miniconda36-x64;C:\\Miniconda36-x64\\Scripts;%PATH%"
-  - "conda create --name test-env python=%PYTHON% pip --yes --quiet"
+  - conda config --append channels conda-forge
+  - "conda create --name test-env python=%PYTHON% pip geopandas numpy pandas pytest requests shapely --yes --quiet"
   - activate test-env
-  - conda install geopandas numpy pandas pytest requests shapely --channel conda-forge --yes --quiet
   - pip install .
   - conda list
 
