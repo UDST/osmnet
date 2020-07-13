@@ -59,11 +59,7 @@ OSMnet can be installed via PyPI:
 Development Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-To install use the ``develop`` command rather than ``install``. Make sure you
-are using the latest version of the code base by using git’s ``git pull``
-inside the cloned repository.
-
-To install OSMnet follow these steps:
+To install OSMnet from source code, follow these steps:
 
 1. Git clone the `OSMnet repo`_
 2. in the cloned directory run: ``python setup.py develop``
