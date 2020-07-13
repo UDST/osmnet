@@ -1,38 +1,39 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Using OSMnet &mdash; OSMnet 0.1.5 documentation</title>
+  <title>Using OSMnet &mdash; OSMnet 0.1.6 documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Utilities" href="utilities.html" />
@@ -50,7 +51,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> OSMnet
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> OSMnet
           
 
           
@@ -60,7 +61,7 @@
             
             
               <div class="version">
-                0.1.5
+                0.1.6
               </div>
             
           
@@ -77,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -97,6 +99,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -135,7 +138,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Using OSMnet</li>
     
@@ -161,36 +164,29 @@
 <div class="section" id="creating-a-graph-network-from-a-osm-street-network">
 <h2>Creating a graph network from a OSM street network<a class="headerlink" href="#creating-a-graph-network-from-a-osm-street-network" title="Permalink to this headline">¶</a></h2>
 <p>Create a <code class="docutils literal notranslate"><span class="pre">drive</span></code> (e.g. automobile) or <code class="docutils literal notranslate"><span class="pre">walk</span></code> (e.g. pedestrian) graph network comprised of nodes and edges from OpenStreetMap (OSM) street network data via the OverpassAPI. Alternatively, custom highway way queries formatted for OverpassAPI can be written and passed to the <code class="docutils literal notranslate"><span class="pre">custom_osm_filter</span></code> parameter. Edges will be weighted by default by distance in units of meters. The resulting graph network is intended to be used with <a class="reference external" href="https://github.com/UDST/pandana">Pandana</a> network accessibility queries and <a class="reference external" href="https://github.com/UDST/urbanaccess">UrbanAccess</a> to create an integrated transit and street graph network.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="osmnet.load.network_from_bbox">
-<code class="descclassname">osmnet.load.</code><code class="descname">network_from_bbox</code><span class="sig-paren">(</span><em>lat_min=None</em>, <em>lng_min=None</em>, <em>lat_max=None</em>, <em>lng_max=None</em>, <em>bbox=None</em>, <em>network_type='walk'</em>, <em>two_way=True</em>, <em>timeout=180</em>, <em>memory=None</em>, <em>max_query_area_size=2500000000</em>, <em>custom_osm_filter=None</em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.load.network_from_bbox" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">osmnet.load.</code><code class="sig-name descname">network_from_bbox</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lat_min</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lng_min</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lat_max</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lng_max</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bbox</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">network_type</span><span class="o">=</span><span class="default_value">'walk'</span></em>, <em class="sig-param"><span class="n">two_way</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">180</span></em>, <em class="sig-param"><span class="n">memory</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_query_area_size</span><span class="o">=</span><span class="default_value">2500000000</span></em>, <em class="sig-param"><span class="n">custom_osm_filter</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.load.network_from_bbox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a graph network from a bounding lat/lon box composed of nodes and
 edges for use in Pandana street network accessibility calculations.
 You may either enter a lat/long box via the four lat_min,
 lng_min, lat_max, lng_max parameters or the bbox parameter as a tuple.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>lat_min</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">southern latitude of bounding box, if this parameter is used the bbox
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lat_min</strong><span class="classifier">float</span></dt><dd><p>southern latitude of bounding box, if this parameter is used the bbox
 parameter should be None.</p>
 </dd>
-<dt><strong>lng_min</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">eastern longitude of bounding box, if this parameter is used the bbox
+<dt><strong>lng_min</strong><span class="classifier">float</span></dt><dd><p>eastern longitude of bounding box, if this parameter is used the bbox
 parameter should be None.</p>
 </dd>
-<dt><strong>lat_max</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">northern latitude of bounding box, if this parameter is used the bbox
+<dt><strong>lat_max</strong><span class="classifier">float</span></dt><dd><p>northern latitude of bounding box, if this parameter is used the bbox
 parameter should be None.</p>
 </dd>
-<dt><strong>lng_max</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">western longitude of bounding box, if this parameter is used the bbox
+<dt><strong>lng_max</strong><span class="classifier">float</span></dt><dd><p>western longitude of bounding box, if this parameter is used the bbox
 parameter should be None.</p>
 </dd>
-<dt><strong>bbox</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple</span></dt>
-<dd><p class="first last">Bounding box formatted as a 4 element tuple:
+<dt><strong>bbox</strong><span class="classifier">tuple</span></dt><dd><p>Bounding box formatted as a 4 element tuple:
 (lng_max, lat_min, lng_min, lat_max)
 example: (-122.304611,37.798933,-122.263412,37.822802)
 a bbox can be extracted for an area using: the CSV format bbox from
@@ -198,46 +194,37 @@ a bbox can be extracted for an area using: the CSV format bbox from
 lat_min, lng_min, lat_max, lng_max parameters in this function
 should be None.</p>
 </dd>
-<dt><strong>network_type</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘walk’, ‘drive’}, optional</span></dt>
-<dd><p class="first last">Specify the network type where value of ‘walk’ includes roadways where
+<dt><strong>network_type</strong><span class="classifier">{‘walk’, ‘drive’}, optional</span></dt><dd><p>Specify the network type where value of ‘walk’ includes roadways where
 pedestrians are allowed and pedestrian pathways and ‘drive’ includes
 driveable roadways. To use a custom definition see the
 custom_osm_filter parameter. Default is walk.</p>
 </dd>
-<dt><strong>two_way</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">Whether the routes are two-way. If True, node pairs will only
+<dt><strong>two_way</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether the routes are two-way. If True, node pairs will only
 occur once.</p>
 </dd>
-<dt><strong>timeout</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd><p class="first last">the timeout interval for requests and to pass to Overpass API</p>
+<dt><strong>timeout</strong><span class="classifier">int, optional</span></dt><dd><p>the timeout interval for requests and to pass to Overpass API</p>
 </dd>
-<dt><strong>memory</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd><p class="first last">server memory allocation size for the query, in bytes. If none,
+<dt><strong>memory</strong><span class="classifier">int, optional</span></dt><dd><p>server memory allocation size for the query, in bytes. If none,
 server will use its default allocation size</p>
 </dd>
-<dt><strong>max_query_area_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">max area for any part of the geometry, in the units the geometry is
+<dt><strong>max_query_area_size</strong><span class="classifier">float, optional</span></dt><dd><p>max area for any part of the geometry, in the units the geometry is
 in: any polygon bigger will get divided up for multiple queries to
 Overpass API (default is 50,000 * 50,000 units (ie, 50km x 50km in
 area, if units are meters))</p>
 </dd>
-<dt><strong>custom_osm_filter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
-<dd><p class="first last">specify custom arguments for the way[“highway”] query to OSM. Must
+<dt><strong>custom_osm_filter</strong><span class="classifier">string, optional</span></dt><dd><p>specify custom arguments for the way[“highway”] query to OSM. Must
 follow Overpass API schema. For
 example to request highway ways that are service roads use:
 ‘[“highway”=”service”]’</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>nodesfinal, edgesfinal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>nodesfinal, edgesfinal</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -263,7 +250,8 @@ example to request highway ways that are service roads use:
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, UrbanSim Inc.
+        
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div> 
@@ -277,7 +265,6 @@ example to request highway ways that are service roads use:
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

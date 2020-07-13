@@ -1,38 +1,39 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; OSMnet 0.1.5 documentation</title>
+  <title>Installation &mdash; OSMnet 0.1.6 documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
@@ -50,7 +51,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> OSMnet
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> OSMnet
           
 
           
@@ -60,7 +61,7 @@
             
             
               <div class="version">
-                0.1.5
+                0.1.6
               </div>
             
           
@@ -77,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -86,15 +88,10 @@
             
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#conda">conda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pip">pip</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#development-installation">Development Installation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#note-for-windows-users-when-installing-dependencies">Note for Windows Users when Installing Dependencies</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#current-status">Current status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conda">Conda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pip">Pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-from-source-code">Installing from source code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#windows-troubleshooting">Windows troubleshooting</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
@@ -105,6 +102,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -143,7 +141,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Installation</li>
     
@@ -166,57 +164,44 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>OSMnet relies on a number of libraries in the scientific Python stack which can be easily installed using the <a class="reference external" href="http://docs.continuum.io/anaconda/">Anaconda</a> python distribution.</p>
-<div class="section" id="dependencies">
-<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>requests &gt;= 2.9.1</li>
-<li>pandas &gt;= 0.16.0</li>
-<li>numpy &gt;= 1.10</li>
-<li>geopandas &gt;= 0.2.1</li>
-<li>Shapely &gt;= 1.5</li>
-</ul>
-</div>
-<div class="section" id="id1">
-<h2>Installation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>OSMnet is built on top of the Python data science stack, making use of libraries like NumPy and Pandas, plus geospatial packages such as GeoPandas and Shapely.</p>
+<p>OSMnet v0.1.6 (July 2020) dropped support for Python 2.7 and 32-bit Windows environments. In these older environments, v0.1.5 should install automatically – but if not, you can get it with <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">osmnet=0.1.5</span> <span class="pre">...</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">osmnet==0.1.5</span></code>.</p>
 <div class="section" id="conda">
-<h3>conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h3>
-<p>OSMnet is available on conda and can be installed with:</p>
+<h2>Conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h2>
+<p>OSMnet is distributed on Conda Forge and can be installed with:</p>
 <p><code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">osmnet</span> <span class="pre">--channel</span> <span class="pre">conda-forge</span></code></p>
-<p>It is recommended to install via conda and the conda-forge channel especially if you find you are having issues installing some of the spatial dependencies.</p>
+<p>This is generally the smoothest installation route. Although OSMnet itself is pure Python code (no compilation needed), the geospatial dependencies often cause installation problems using the default Pip package manager, especially in Windows. You can obtain the Conda package manager by installing the <a class="reference external" href="https://www.anaconda.com/products/individual#Downloads">Anaconda</a> Python distribution.</p>
 </div>
 <div class="section" id="pip">
-<h3>pip<a class="headerlink" href="#pip" title="Permalink to this headline">¶</a></h3>
-<p>OSMnet can be installed via PyPI:</p>
+<h2>Pip<a class="headerlink" href="#pip" title="Permalink to this headline">¶</a></h2>
+<p>OSMnet is also distributed on PyPI:</p>
 <p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">osmnet</span></code></p>
+<p>If you run into errors related to dependency installation, try (a) setting up a clean environment and installing again, or (b) using Conda instead of Pip.</p>
 </div>
-<div class="section" id="development-installation">
-<h3>Development Installation<a class="headerlink" href="#development-installation" title="Permalink to this headline">¶</a></h3>
-<p>To install use the <code class="docutils literal notranslate"><span class="pre">develop</span></code> command rather than <code class="docutils literal notranslate"><span class="pre">install</span></code>. Make sure you
-are using the latest version of the codebase by using git’s <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code>
-inside the cloned repository.</p>
-<p>To install OSMnet follow these steps:</p>
-<ol class="arabic simple">
-<li>Git clone the <a class="reference external" href="https://github.com/udst/osmnet">OSMnet repo</a></li>
-<li>in the cloned directory run: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code> or without dependencies: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span> <span class="pre">--no-deps</span></code></li>
-</ol>
-<p>To update to the latest version:</p>
-<p>Use <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> inside the cloned repository</p>
+<div class="section" id="installing-from-source-code">
+<h2>Installing from source code<a class="headerlink" href="#installing-from-source-code" title="Permalink to this headline">¶</a></h2>
+<p>You can install a development version of OSMnet by cloning the GitHub repository (or a fork or branch) and running this:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code></p>
+</div>
+<div class="section" id="windows-troubleshooting">
+<h2>Windows troubleshooting<a class="headerlink" href="#windows-troubleshooting" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you are a Windows user, dependency installation issues can be minimized by using Conda. However, if you find you are still having issues with dependencies – such as when importing OSMnet you see an error like the one below – most likely one of OSMnet’s dependencies did not install or compile correctly on your machine. GeoPandas requires the dependency package Fiona, which in turn requires the dependency package GDAL.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ne">ImportError</span><span class="p">:</span> <span class="n">DLL</span> <span class="n">load</span> <span class="n">failed</span><span class="p">:</span> <span class="n">The</span> <span class="n">specified</span> <span class="n">module</span> <span class="n">could</span> <span class="ow">not</span> <span class="n">be</span> <span class="n">found</span>
+</pre></div>
+</div>
+<p>You can try installing these dependencies via <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">Christoph Gohlke Windows python wheels</a>: <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal">GDAL Windows Wheel</a> and <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#fiona">Fiona Windows Wheel</a>. Download the package that matches your Python version and Windows system architecture, then <code class="docutils literal notranslate"><span class="pre">cd</span></code> into the download directory and install each package like this, changing the file names as appropriate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">Fiona</span><span class="o">-</span><span class="mf">1.7</span><span class="o">.</span><span class="mi">6</span><span class="o">-</span><span class="n">cp27</span><span class="o">-</span><span class="n">cp27m</span><span class="o">-</span><span class="n">win_amd64</span><span class="o">.</span><span class="n">whl</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">GDAL</span><span class="o">-</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">cp27</span><span class="o">-</span><span class="n">cp27m</span><span class="o">-</span><span class="n">win_amd64</span><span class="o">.</span><span class="n">whl</span>
+</pre></div>
+</div>
+<p>If you have already installed these via Conda or Pip, force a reinstall:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">Fiona</span><span class="o">-</span><span class="mf">1.7</span><span class="o">.</span><span class="mi">6</span><span class="o">-</span><span class="n">cp27</span><span class="o">-</span><span class="n">cp27m</span><span class="o">-</span><span class="n">win_amd64</span><span class="o">.</span><span class="n">whl</span> <span class="o">--</span><span class="n">upgrade</span> <span class="o">--</span><span class="n">force</span><span class="o">-</span><span class="n">reinstall</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">GDAL</span><span class="o">-</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">cp27</span><span class="o">-</span><span class="n">cp27m</span><span class="o">-</span><span class="n">win_amd64</span><span class="o">.</span><span class="n">whl</span> <span class="o">--</span><span class="n">upgrade</span> <span class="o">--</span><span class="n">force</span><span class="o">-</span><span class="n">reinstall</span>
+</pre></div>
 </div>
 </div>
-<div class="section" id="note-for-windows-users-when-installing-dependencies">
-<h2>Note for Windows Users when Installing Dependencies<a class="headerlink" href="#note-for-windows-users-when-installing-dependencies" title="Permalink to this headline">¶</a></h2>
-<p>If you are a Windows user, dependency installation issues can be minimized by using conda and the conda-forge channel. However, if you find you are still having issues with dependencies such as when importing osmnet you see an error like this: <code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">DLL</span> <span class="pre">load</span> <span class="pre">failed:</span> <span class="pre">The</span> <span class="pre">specified</span> <span class="pre">module</span> <span class="pre">could</span> <span class="pre">not</span> <span class="pre">be</span> <span class="pre">found.</span></code> Most likely one of osmnet’s dependencies did not install or compile correctly on your Windows machine. <code class="docutils literal notranslate"><span class="pre">geopandas</span></code> requires the dependency package <code class="docutils literal notranslate"><span class="pre">fiona</span></code> which requires the dependency package <code class="docutils literal notranslate"><span class="pre">gdal</span></code>. Windows users could try installing these dependencies via <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">Christoph Gohlke Windows python wheels</a>: <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal">GDAL Windows Wheel</a> and <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#fiona">Fiona Windows Wheel</a>. Download the package that matches your Python version and Windows system architecture, then cd into the download directory and install each package for example using: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">Fiona-1.7.6-cp27-cp27m-win_amd64.whl</span></code> and
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">GDAL-2.1.3-cp27-cp27m-win_amd64.whl</span></code>
-If you have already installed these packaged via conda or pip, force a reinstall: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">Fiona-1.7.6-cp27-cp27m-win_amd64.whl</span> <span class="pre">--upgrade</span> <span class="pre">--force-reinstall</span></code> and
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">GDAL-2.1.3-cp27-cp27m-win_amd64.whl</span> <span class="pre">--upgrade</span> <span class="pre">--force-reinstall</span></code></p>
-</div>
-<div class="section" id="current-status">
-<h2>Current status<a class="headerlink" href="#current-status" title="Permalink to this headline">¶</a></h2>
-<p><em>Forthcoming improvements:</em></p>
-<ul class="simple">
-<li>Tutorial/demo</li>
-</ul>
 </div>
 </div>
 
@@ -240,7 +225,8 @@ If you have already installed these packaged via conda or pip, force a reinstall
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, UrbanSim Inc.
+        
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div> 
@@ -254,7 +240,6 @@ If you have already installed these packaged via conda or pip, force a reinstall
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

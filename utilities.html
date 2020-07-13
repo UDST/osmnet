@@ -1,38 +1,39 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Utilities &mdash; OSMnet 0.1.5 documentation</title>
+  <title>Utilities &mdash; OSMnet 0.1.6 documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Using OSMnet" href="osmnet.html" /> 
@@ -49,7 +50,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> OSMnet
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> OSMnet
           
 
           
@@ -59,7 +60,7 @@
             
             
               <div class="version">
-                0.1.5
+                0.1.6
               </div>
             
           
@@ -76,6 +77,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -93,6 +95,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -131,7 +134,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Utilities</li>
     
@@ -155,80 +158,60 @@
   <div class="section" id="utilities">
 <h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h1>
 <p>Global configuration settings can be changed using the settings object.</p>
-<dl class="data">
+<dl class="py data">
 <dt id="osmnet.config.settings">
-<code class="descclassname">osmnet.config.</code><code class="descname">settings</code><a class="headerlink" href="#osmnet.config.settings" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">osmnet.config.</code><code class="sig-name descname">settings</code><a class="headerlink" href="#osmnet.config.settings" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set of configuration variables to initiate the configuration settings
 for osmnet.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>logs_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">location to write log files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>logs_folder</strong><span class="classifier">str</span></dt><dd><p>location to write log files</p>
 </dd>
-<dt><strong>log_file</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true, save log output to a log file in logs_folder</p>
+<dt><strong>log_file</strong><span class="classifier">bool</span></dt><dd><p>if true, save log output to a log file in logs_folder</p>
 </dd>
-<dt><strong>log_console</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true, print log output to the console</p>
+<dt><strong>log_console</strong><span class="classifier">bool</span></dt><dd><p>if true, print log output to the console</p>
 </dd>
-<dt><strong>log_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">name of the logger</p>
+<dt><strong>log_name</strong><span class="classifier">str</span></dt><dd><p>name of the logger</p>
 </dd>
-<dt><strong>log_filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">name of the log file</p>
+<dt><strong>log_filename</strong><span class="classifier">str</span></dt><dd><p>name of the log file</p>
 </dd>
-<dt><strong>keep_osm_tags</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">list of OpenStreetMap tags to save from way elements and preserve in
+<dt><strong>keep_osm_tags</strong><span class="classifier">list</span></dt><dd><p>list of OpenStreetMap tags to save from way elements and preserve in
 network edge table</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <p>By default the global configuration settings are already set, however they can be changed by using the functions in the <code class="docutils literal notranslate"><span class="pre">osmnet_config</span></code> class:</p>
-<dl class="class">
+<dl class="py class">
 <dt id="osmnet.config.osmnet_config">
-<em class="property">class </em><code class="descclassname">osmnet.config.</code><code class="descname">osmnet_config</code><span class="sig-paren">(</span><em>logs_folder='logs', log_file=True, log_console=False, log_name='osmnet', log_filename='osmnet', keep_osm_tags=['name', 'ref', 'highway', 'service', 'bridge', 'tunnel', 'access', 'oneway', 'toll', 'lanes', 'maxspeed', 'hgv', 'hov', 'area', 'width', 'est_width', 'junction']</em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.config.osmnet_config" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">osmnet.config.</code><code class="sig-name descname">osmnet_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">logs_folder</span><span class="o">=</span><span class="default_value">'logs'</span></em>, <em class="sig-param"><span class="n">log_file</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">log_console</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log_name</span><span class="o">=</span><span class="default_value">'osmnet'</span></em>, <em class="sig-param"><span class="n">log_filename</span><span class="o">=</span><span class="default_value">'osmnet'</span></em>, <em class="sig-param"><span class="n">keep_osm_tags</span><span class="o">=</span><span class="default_value">['name', 'ref', 'highway', 'service', 'bridge', 'tunnel', 'access', 'oneway', 'toll', 'lanes', 'maxspeed', 'hgv', 'hov', 'area', 'width', 'est_width', 'junction']</span></em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.config.osmnet_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set of configuration variables to initiate the configuration settings
 for osmnet.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>logs_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">location to write log files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>logs_folder</strong><span class="classifier">str</span></dt><dd><p>location to write log files</p>
 </dd>
-<dt><strong>log_file</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true, save log output to a log file in logs_folder</p>
+<dt><strong>log_file</strong><span class="classifier">bool</span></dt><dd><p>if true, save log output to a log file in logs_folder</p>
 </dd>
-<dt><strong>log_console</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true, print log output to the console</p>
+<dt><strong>log_console</strong><span class="classifier">bool</span></dt><dd><p>if true, print log output to the console</p>
 </dd>
-<dt><strong>log_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">name of the logger</p>
+<dt><strong>log_name</strong><span class="classifier">str</span></dt><dd><p>name of the logger</p>
 </dd>
-<dt><strong>log_filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">name of the log file</p>
+<dt><strong>log_filename</strong><span class="classifier">str</span></dt><dd><p>name of the log file</p>
 </dd>
-<dt><strong>keep_osm_tags</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">list of OpenStreetMap tags to save from way elements and preserve in
+<dt><strong>keep_osm_tags</strong><span class="classifier">list</span></dt><dd><p>list of OpenStreetMap tags to save from way elements and preserve in
 network edge table</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="osmnet.config.osmnet_config.to_dict">
-<code class="descname">to_dict</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.config.osmnet_config.to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.config.osmnet_config.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dict representation of an osmnet osmnet_config instance.</p>
 </dd></dl>
 
@@ -254,7 +237,8 @@ network edge table</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, UrbanSim Inc.
+        
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div> 
@@ -268,7 +252,6 @@ network edge table</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
