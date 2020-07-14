@@ -451,67 +451,59 @@ def project_geometry(geometry, crs, to_latlong=False):
     return geometry_proj, gdf_proj.crs
 
 
-def project_gdf(gdf, to_latlong=False, verbose=False):
+def project_gdf(gdf, to_crs=None, to_latlong=False):
     """
-    Project a GeoDataFrame to the UTM zone appropriate for its geometries'
-    centroid. The calculation works well for most latitudes,
-    however it will not work well for some far northern locations.
+    Project a GeoDataFrame from its current CRS to another.
+    If to_crs is None, project to the UTM CRS for the UTM zone in which the
+    GeoDataFrame's centroid lies. Otherwise project to the CRS defined by
+    to_crs. The simple UTM zone calculation in this function works well for
+    most latitudes, but may not work for some extreme northern locations like
+    Svalbard or far northern Norway. If the GeoDataFrame is already in UTM, it
+    will be returned untouched.
 
     Parameters
     ----------
-    gdf : GeoDataFrame
-        the gdf to be projected to UTM
-    to_latlong : bool, optional
-        if True, projects to WGS84 instead of to UTM
-    verbose : bool, optional
-        if False, turns off log and print statements for this function
+    gdf : geopandas.GeoDataFrame
+        the GeoDataFrame to be projected
+    to_crs : dict or string or pyproj.CRS
+        if None, project to UTM zone in which gdf's centroid lies, otherwise
+        project to this CRS
+    to_latlong : bool
+        if True, project to epsg:4326 and ignore to_crs
 
     Returns
     -------
-    projected_gdf : GeoDataFrame
+    gdf_proj : geopandas.GeoDataFrame
+        the projected GeoDataFrame
     """
-    assert len(gdf) > 0, 'You cannot project an empty GeoDataFrame.'
-    start_time = time.time()
+    if gdf.crs is None or len(gdf) < 1:
+        raise ValueError("GeoDataFrame must have a valid CRS and cannot be empty")
 
+    # if to_latlong is True, project the gdf to latlong
     if to_latlong:
-        # if to_latlong is True, project the gdf to WGS84
-        latlong_crs = {'init': 'epsg:4326'}
-        projected_gdf = gdf.to_crs(latlong_crs)
-        if not hasattr(gdf, 'name'):
-            gdf.name = 'unnamed'
-        if verbose:
-            log('Projected the GeoDataFrame "{}" to EPSG 4326 in {:,.2f} '
-                'seconds'.format(gdf.name, time.time()-start_time))
+        gdf_proj = gdf.to_crs(4326)
+
+    # else if to_crs was passed-in, project gdf to this CRS
+    elif to_crs is not None:
+        gdf_proj = gdf.to_crs(to_crs)
+
+    # otherwise, automatically project the gdf to UTM
     else:
-        # else, project the gdf to UTM
-        # if GeoDataFrame is already in UTM, return it
-        if (gdf.crs is not None) and ('proj' in gdf.crs) \
-                and (gdf.crs['proj'] == 'utm'):
-            return gdf
+        if gdf.crs.is_projected:
+            raise ValueError("Geometry must be unprojected to calculate UTM zone")
 
-        # calculate the centroid of the union of all the geometries in the
-        # GeoDataFrame
-        avg_longitude = gdf['geometry'].unary_union.centroid.x
+        # calculate longitude of centroid of union of all geometries in gdf
+        avg_lng = gdf["geometry"].unary_union.centroid.x
 
-        # calculate the UTM zone from this avg longitude and define the
-        # UTM CRS to project
-        utm_zone = int(math.floor((avg_longitude + 180) / 6.) + 1)
-        utm_crs = {'datum': 'NAD83',
-                   'ellps': 'GRS80',
-                   'proj': 'utm',
-                   'zone': utm_zone,
-                   'units': 'm'}
+        # calculate UTM zone from avg longitude to define CRS to project to
+        utm_zone = int(math.floor((avg_lng + 180) / 6.0) + 1)
+        utm_crs = ('+proj=utm +zone={} +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
+                   .format(utm_zone))
 
         # project the GeoDataFrame to the UTM CRS
-        projected_gdf = gdf.to_crs(utm_crs)
-        if not hasattr(gdf, 'name'):
-            gdf.name = 'unnamed'
-        if verbose:
-            log('Projected the GeoDataFrame "{}" to UTM-{} in {:,.2f} '
-                'seconds'.format(gdf.name, utm_zone, time.time()-start_time))
+        gdf_proj = gdf.to_crs(utm_crs)
 
-    projected_gdf.name = gdf.name
-    return projected_gdf
+    return gdf_proj
 
 
 def process_node(e):
@@ -708,8 +700,8 @@ def node_pairs(nodes, ways, waynodes, two_way=True):
     """
     start_time = time.time()
 
-    def pairwise(l):
-        return zip(islice(l, 0, len(l)), islice(l, 1, None))
+    def pairwise(ls):
+        return zip(islice(ls, 0, len(ls)), islice(ls, 1, None))
     intersections = intersection_nodes(waynodes)
     waymap = waynodes.groupby(level=0, sort=False)
     pairs = []
@@ -838,8 +830,8 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                and len(bbox) == 4, 'bbox must be a 4 element tuple'
         assert (lat_min is None) and (lng_min is None) and \
                (lat_max is None) and (lng_max is None), \
-            'lat_min, lng_min, lat_max and lng_max must be None ' \
-            'if you are using bbox'
+               'lat_min, lng_min, lat_max and lng_max must be None ' \
+               'if you are using bbox'
 
         lng_max, lat_min, lng_min, lat_max = bbox
 
