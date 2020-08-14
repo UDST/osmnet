@@ -38,7 +38,7 @@
 
 - Check out the copy of the code you'd like to release
 
-- Run `python setup.py sdist bdist_wheel --universal`
+- Run `python setup.py sdist bdist_wheel` (WITHOUT the `--universal` flag, since OSMnet no longer supports Python 2)
 
 - This should create a `dist` directory containing two package files -- delete any old ones before the next step
 
