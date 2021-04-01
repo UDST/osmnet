@@ -441,11 +441,7 @@ def project_geometry(geometry, crs, to_latlong=False):
     geometry_proj, crs : tuple (projected Shapely geometry, crs of the
     projected geometry)
     """
-    gdf = gpd.GeoDataFrame()
-    gdf.crs = crs
-    gdf.name = 'geometry to project'
-    gdf['geometry'] = None
-    gdf.loc[0, 'geometry'] = geometry
+    gdf = gpd.GeoDataFrame(geometry=[geometry], crs=crs)
     gdf_proj = project_gdf(gdf, to_latlong=to_latlong)
     geometry_proj = gdf_proj['geometry'].iloc[0]
     return geometry_proj, gdf_proj.crs
