@@ -474,7 +474,8 @@ def project_gdf(gdf, to_crs=None, to_latlong=False):
         the projected GeoDataFrame
     """
     if gdf.crs is None or len(gdf) < 1:
-        raise ValueError("GeoDataFrame must have a valid CRS and cannot be empty")
+        raise ValueError(
+            "GeoDataFrame must have a valid CRS and cannot be empty")
 
     # if to_latlong is True, project the gdf to latlong
     if to_latlong:
@@ -487,15 +488,16 @@ def project_gdf(gdf, to_crs=None, to_latlong=False):
     # otherwise, automatically project the gdf to UTM
     else:
         if gdf.crs.is_projected:
-            raise ValueError("Geometry must be unprojected to calculate UTM zone")
+            raise ValueError(
+                "Geometry must be unprojected to calculate UTM zone")
 
         # calculate longitude of centroid of union of all geometries in gdf
         avg_lng = gdf["geometry"].unary_union.centroid.x
 
         # calculate UTM zone from avg longitude to define CRS to project to
         utm_zone = int(math.floor((avg_lng + 180) / 6.0) + 1)
-        utm_crs = ('+proj=utm +zone={} +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
-                   .format(utm_zone))
+        utm_crs = ('+proj=utm +zone={} +ellps=WGS84 '
+                   '+datum=WGS84 +units=m +no_defs'.format(utm_zone))
 
         # project the GeoDataFrame to the UTM CRS
         gdf_proj = gdf.to_crs(utm_crs)
