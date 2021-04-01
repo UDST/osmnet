@@ -1,5 +1,4 @@
 import numpy.testing as npt
-import pandas.util.testing as pdt
 import pytest
 import shapely.geometry as geometry
 
@@ -209,9 +208,9 @@ def test_ways_in_bbox(bbox1, dataframes1):
                                               network_type='walk')
     exp_nodes, exp_ways, exp_waynodes = dataframes1
 
-    pdt.assert_frame_equal(nodes, exp_nodes)
-    pdt.assert_frame_equal(ways, exp_ways)
-    pdt.assert_frame_equal(waynodes, exp_waynodes)
+    nodes.equals(exp_nodes)
+    ways.equals(exp_ways)
+    waynodes.equals(exp_waynodes)
 
 
 @pytest.mark.parametrize(
