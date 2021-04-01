@@ -27,7 +27,7 @@ setup(
     packages=find_packages(exclude=['*.tests']),
     python_requires='>=3',
     install_requires=[
-        'geopandas >= 0.9',
+        'geopandas >= 0.8.2',
         'numpy >= 1.10',
         'pandas >= 0.23',
         'requests >= 2.9.1',
