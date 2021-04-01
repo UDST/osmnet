@@ -59,7 +59,7 @@ This is an open source project that's part of the Urban Data Science Toolkit. De
 
 - Check out the copy of the code you'd like to release
 
-- Run `python setup.py sdist`
+- Run `python setup.py sdist bdist_wheel` (WITHOUT the `--universal` flag, since OSMnet no longer supports Python 2)
 
 - This should create a `dist` directory containing a gzip package file -- delete any old ones before the next step
 
