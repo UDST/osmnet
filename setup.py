@@ -27,10 +27,10 @@ setup(
     packages=find_packages(exclude=['*.tests']),
     python_requires='>=3',
     install_requires=[
-        'geopandas >= 0.7',
+        'geopandas >= 0.9',
         'numpy >= 1.10',
         'pandas >= 0.23',
         'requests >= 2.9.1',
-        'shapely >= 1.5'
+        'shapely >= 1.7.1'
     ]
 )
