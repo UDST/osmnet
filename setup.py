@@ -31,6 +31,6 @@ setup(
         'numpy >= 1.10',
         'pandas >= 0.23',
         'requests >= 2.9.1',
-        'shapely >= 1.7.1'
+        'shapely >= 1.6'
     ]
 )
