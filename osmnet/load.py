@@ -135,7 +135,7 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     polygon = Polygon([(lng_max, lat_min), (lng_min, lat_min),
                        (lng_min, lat_max), (lng_max, lat_max)])
     geometry_proj, crs_proj = project_geometry(polygon,
-                                               crs={'init': 'epsg:4326'})
+                                               crs="EPSG:4326")
 
     # subdivide the bbox area poly if it exceeds the max area size
     # (in meters), then project back to WGS84
@@ -428,10 +428,11 @@ def project_geometry(geometry, crs, to_latlong=False):
 
     Parameters
     ----------
-    geometry : shapely Polygon or MultiPolygon
+    geometry : shapely.geometry.Polygon or shapely.geometry.MultiPolygon
         the geometry to project
-    crs : int
+    crs : string or pyproj.CRS
         the starting coordinate reference system of the passed-in geometry
+        such as "EPSG:4326"
     to_latlong : bool, optional
         if True, project from crs to WGS84, if False, project
         from crs to local UTM zone
@@ -461,7 +462,7 @@ def project_gdf(gdf, to_crs=None, to_latlong=False):
     ----------
     gdf : geopandas.GeoDataFrame
         the GeoDataFrame to be projected
-    to_crs : dict or string or pyproj.CRS
+    to_crs : string or pyproj.CRS
         if None, project to UTM zone in which gdf's centroid lies, otherwise
         project to this CRS
     to_latlong : bool
