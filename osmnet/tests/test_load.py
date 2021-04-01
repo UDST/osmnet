@@ -1,6 +1,8 @@
 import numpy.testing as npt
 import pytest
-import shapely.geometry as geometry
+from shapely.geometry import Polygon, MultiPolygon
+import geopandas as gpd
+from pyproj.crs.crs import CRS
 
 import osmnet.load as load
 
@@ -42,7 +44,7 @@ def bbox5():
 
 @pytest.fixture
 def simple_polygon():
-    polygon = geometry.Polygon([[0, 0], [1, 0], [1, 1], [0, 1]])
+    polygon = Polygon([[0, 0], [1, 0], [1, 1], [0, 1]])
     return polygon
 
 
@@ -197,7 +199,7 @@ def test_quadrat_cut_geometry(simple_polygon):
                                              min_num=3,
                                              buffer_amount=1e-9)
 
-    assert isinstance(multipolygon, geometry.MultiPolygon)
+    assert isinstance(multipolygon, MultiPolygon)
     assert len(multipolygon) == 4
 
 
@@ -296,3 +298,25 @@ def test_custom_query_pass(bbox5):
     assert len(nodes) == 24
     assert len(edges) == 32
     assert edges['highway'].unique() == 'service'
+
+
+def test_project_geometry(bbox5):
+    expected_srs = ('+proj=utm +zone=10 +ellps=WGS84 +datum=WGS84 +units=m '
+                    '+no_defs +type=crs')
+    expected_bbox_list = [
+        [561923.4095069966, 4184280.844819557, 562185.6145400511,
+         4184485.727226954]]
+
+    lng_max, lat_min, lng_min, lat_max = bbox5
+    input_polygon = Polygon([(lng_max, lat_min), (lng_min, lat_min),
+                             (lng_min, lat_max), (lng_max, lat_max)])
+
+    result_polygon, result_crs_proj = load.project_geometry(
+        input_polygon, crs="EPSG:4326", to_latlong=False)
+    assert isinstance(result_polygon, Polygon)
+    result_polygon = gpd.GeoSeries(result_polygon)
+    assert result_polygon.empty is False
+    assert result_polygon.bounds.values.tolist() == expected_bbox_list
+
+    assert isinstance(result_crs_proj, CRS)
+    assert result_crs_proj.srs == expected_srs
