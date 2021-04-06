@@ -3,7 +3,7 @@ language: python
 python:
   - '3.5'
   - '3.6'
-  - '3.7'
+#  - '3.7' # drop tests in 3.7 for now due to Travis build error
   - '3.8'
 
 install:
