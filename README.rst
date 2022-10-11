@@ -12,10 +12,11 @@ Overview
 
 OSMnet offers tools to download street network data from OpenStreetMap
 and extract a graph network comprised of nodes and edges to be used in
-`Pandana`_ street network accessibility calculations.
+`Pandana`_ street network accessibility calculations and or `UrbanAccess`_
+to connect GTFS transit networks to road networks.
 
 Let us know what you are working on or if you think you have a great use case
-by tweeting us at ``@urbansim`` or post on the UrbanSim `forum`_.
+by tweeting us at ``@urbansim``.
 
 Library Status
 --------------
@@ -84,7 +85,6 @@ Related UDST libraries
 .. _OSMnet repo: https://github.com/udst/osmnet
 .. _here: https://udst.github.io/osmnet/index.html
 .. _UrbanAccess: https://github.com/UDST/urbanaccess
-.. _forum: http://discussion.urbansim.com/
 
 .. |Build Status| image:: https://travis-ci.org/UDST/osmnet.svg?branch=master
    :target: https://travis-ci.org/UDST/osmnet

@@ -4,7 +4,7 @@ Introduction
 OSMnet provides tools for the extraction of `OpenStreetMap`_ (OSM) street network data. OSMnet is intended to be used in tandem with `Pandana`_ and `UrbanAccess`_ libraries to extract street network nodes and edges.
 
 Let us know what you are working on or if you think you have a great use case
-by tweeting us at ``@urbansim`` or post on the UrbanSim `forum`_.
+by tweeting us at ``@urbansim``.
 
 Reporting bugs
 ~~~~~~~~~~~~~~~~~~~~~~~~
