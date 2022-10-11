@@ -144,11 +144,11 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     geometry, crs = project_geometry(geometry_proj_consolidated_subdivided,
                                      crs=crs_proj, to_latlong=True)
     log('Requesting network data within bounding box from Overpass API '
-        'in {:,} request(s)'.format(len(geometry)))
+        'in {:,} request(s)'.format(len(geometry.geoms)))
     start_time = time.time()
 
     # loop through each polygon in the geometry
-    for poly in geometry:
+    for poly in geometry.geoms:
         # represent bbox as lng_max, lat_min, lng_min, lat_max and round
         # lat-longs to 8 decimal places to create
         # consistent URL strings
@@ -168,7 +168,7 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
 
     log('Downloaded OSM network data within bounding box from Overpass '
         'API in {:,} request(s) and'
-        ' {:,.2f} seconds'.format(len(geometry), time.time()-start_time))
+        ' {:,.2f} seconds'.format(len(geometry.geoms), time.time()-start_time))
 
     # stitch together individual json results
     for json in response_jsons_list:

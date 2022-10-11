@@ -200,7 +200,7 @@ def test_quadrat_cut_geometry(simple_polygon):
                                              buffer_amount=1e-9)
 
     assert isinstance(multipolygon, MultiPolygon)
-    assert len(multipolygon) == 4
+    assert len(multipolygon.geoms) == 4
 
 
 def test_ways_in_bbox(bbox1, dataframes1):
