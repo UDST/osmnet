@@ -39,5 +39,3 @@ Related UDST libraries
 .. _Pandana: https://github.com/UDST/pandana
 
 .. _UrbanAccess: https://github.com/UDST/urbanaccess
-
-.. _forum: http://discussion.urbansim.com/
