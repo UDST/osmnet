@@ -30,8 +30,8 @@ master_doc = 'index'
 project = u'OSMnet'
 copyright = u'2022, UrbanSim Inc.'
 author = u'UrbanSim Inc.'
-version = u'0.1.6'
-release = u'0.1.6'
+version = u'0.1.7'
+release = u'0.1.7'
 language = None
 
 nitpicky = True
