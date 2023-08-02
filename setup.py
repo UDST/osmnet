@@ -21,16 +21,18 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],
     packages=find_packages(exclude=['*.tests']),
     python_requires='>=3',
     install_requires=[
-        'geopandas >= 0.8.2',
+        'geopandas >= 0.11',
         'numpy >= 1.10',
         'pandas >= 0.23',
         'requests >= 2.9.1',
-        'shapely >= 1.6'
+        'shapely >= 1.8'
     ]
 )

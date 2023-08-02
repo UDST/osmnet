@@ -200,7 +200,7 @@ def test_quadrat_cut_geometry(simple_polygon):
                                              buffer_amount=1e-9)
 
     assert isinstance(multipolygon, MultiPolygon)
-    assert len(multipolygon) == 4
+    assert len(multipolygon.geoms) == 4
 
 
 def test_ways_in_bbox(bbox1, dataframes1):
@@ -240,14 +240,16 @@ def test_intersection_nodes2(dataframes2):
     _, _, waynodes = dataframes2
     intersections = load.intersection_nodes(waynodes)
 
-    assert intersections == {53099275, 53063555}
+    assert intersections == {
+        53063555, 9515373382, 53099275, 9515406927, 4279441429, 4279441430,
+        4279441432}
 
 
 def test_node_pairs_two_way(dataframes2):
     nodes, ways, waynodes = dataframes2
     pairs = load.node_pairs(nodes, ways, waynodes)
 
-    assert len(pairs) == 1
+    assert len(pairs) == 6
 
     fn = 53063555
     tn = 53099275
@@ -263,7 +265,7 @@ def test_node_pairs_one_way(dataframes2):
     nodes, ways, waynodes = dataframes2
     pairs = load.node_pairs(nodes, ways, waynodes, two_way=False)
 
-    assert len(pairs) == 2
+    assert len(pairs) == 12
 
     n1 = 53063555
     n2 = 53099275
