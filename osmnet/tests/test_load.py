@@ -258,7 +258,7 @@ def test_node_pairs_two_way(dataframes2):
 
     assert pair.from_id == fn
     assert pair.to_id == tn
-    npt.assert_allclose(pair.distance, 101.48279182499789)
+    npt.assert_allclose(pair.distance, 100.575284)
 
 
 def test_node_pairs_one_way(dataframes2):
@@ -275,7 +275,7 @@ def test_node_pairs_one_way(dataframes2):
 
         assert pair.from_id == p1
         assert pair.to_id == p2
-        npt.assert_allclose(pair.distance, 101.48279182499789)
+        npt.assert_allclose(pair.distance, 100.575284)
 
 
 def test_column_names(bbox4):
@@ -297,8 +297,8 @@ def test_custom_query_pass(bbox5):
     nodes, edges = load.network_from_bbox(
         bbox=bbox5, custom_osm_filter='["highway"="service"]'
     )
-    assert len(nodes) == 24
-    assert len(edges) == 32
+    assert len(nodes) == 25
+    assert len(edges) == 33
     assert edges['highway'].unique() == 'service'
 
 
