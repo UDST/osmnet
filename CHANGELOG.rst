@@ -3,7 +3,7 @@ v0.1.7
 
 2023/8/7
 
-* apps support for Shapely 2.0
+* adds support for Shapely 2.0
 
 v0.1.6
 ======
