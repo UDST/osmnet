@@ -135,7 +135,7 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     polygon = Polygon([(lng_max, lat_min), (lng_min, lat_min),
                        (lng_min, lat_max), (lng_max, lat_max)])
     geometry_proj, crs_proj = project_geometry(polygon,
-                                               crs={'init': 'epsg:4326'})
+                                               crs="EPSG:4326")
 
     # subdivide the bbox area poly if it exceeds the max area size
     # (in meters), then project back to WGS84
@@ -144,11 +144,11 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
     geometry, crs = project_geometry(geometry_proj_consolidated_subdivided,
                                      crs=crs_proj, to_latlong=True)
     log('Requesting network data within bounding box from Overpass API '
-        'in {:,} request(s)'.format(len(geometry)))
+        'in {:,} request(s)'.format(len(geometry.geoms)))
     start_time = time.time()
 
     # loop through each polygon in the geometry
-    for poly in geometry:
+    for poly in geometry.geoms:
         # represent bbox as lng_max, lat_min, lng_min, lat_max and round
         # lat-longs to 8 decimal places to create
         # consistent URL strings
@@ -168,7 +168,7 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
 
     log('Downloaded OSM network data within bounding box from Overpass '
         'API in {:,} request(s) and'
-        ' {:,.2f} seconds'.format(len(geometry), time.time()-start_time))
+        ' {:,.2f} seconds'.format(len(geometry.geoms), time.time()-start_time))
 
     # stitch together individual json results
     for json in response_jsons_list:
@@ -234,7 +234,7 @@ def overpass_request(data, pause_duration=None, timeout=180,
 
     # get the response size and the domain, log result
     size_kb = len(response.content) / 1000.
-    domain = re.findall(r'//(?s)(.*?)/', url)[0]
+    domain = re.findall(r'(?s)//(.*?)/', url)[0]
     log('Downloaded {:,.1f}KB from {} in {:,.2f} seconds'
         .format(size_kb, domain, time.time()-start_time))
 
@@ -428,10 +428,11 @@ def project_geometry(geometry, crs, to_latlong=False):
 
     Parameters
     ----------
-    geometry : shapely Polygon or MultiPolygon
+    geometry : shapely.geometry.Polygon or shapely.geometry.MultiPolygon
         the geometry to project
-    crs : int
+    crs : string or pyproj.CRS
         the starting coordinate reference system of the passed-in geometry
+        such as "EPSG:4326"
     to_latlong : bool, optional
         if True, project from crs to WGS84, if False, project
         from crs to local UTM zone
@@ -441,11 +442,7 @@ def project_geometry(geometry, crs, to_latlong=False):
     geometry_proj, crs : tuple (projected Shapely geometry, crs of the
     projected geometry)
     """
-    gdf = gpd.GeoDataFrame()
-    gdf.crs = crs
-    gdf.name = 'geometry to project'
-    gdf['geometry'] = None
-    gdf.loc[0, 'geometry'] = geometry
+    gdf = gpd.GeoDataFrame(geometry=[geometry], crs=crs)
     gdf_proj = project_gdf(gdf, to_latlong=to_latlong)
     geometry_proj = gdf_proj['geometry'].iloc[0]
     return geometry_proj, gdf_proj.crs
@@ -465,7 +462,7 @@ def project_gdf(gdf, to_crs=None, to_latlong=False):
     ----------
     gdf : geopandas.GeoDataFrame
         the GeoDataFrame to be projected
-    to_crs : dict or string or pyproj.CRS
+    to_crs : string or pyproj.CRS
         if None, project to UTM zone in which gdf's centroid lies, otherwise
         project to this CRS
     to_latlong : bool
@@ -477,7 +474,8 @@ def project_gdf(gdf, to_crs=None, to_latlong=False):
         the projected GeoDataFrame
     """
     if gdf.crs is None or len(gdf) < 1:
-        raise ValueError("GeoDataFrame must have a valid CRS and cannot be empty")
+        raise ValueError(
+            "GeoDataFrame must have a valid CRS and cannot be empty")
 
     # if to_latlong is True, project the gdf to latlong
     if to_latlong:
@@ -490,15 +488,16 @@ def project_gdf(gdf, to_crs=None, to_latlong=False):
     # otherwise, automatically project the gdf to UTM
     else:
         if gdf.crs.is_projected:
-            raise ValueError("Geometry must be unprojected to calculate UTM zone")
+            raise ValueError(
+                "Geometry must be unprojected to calculate UTM zone")
 
         # calculate longitude of centroid of union of all geometries in gdf
         avg_lng = gdf["geometry"].unary_union.centroid.x
 
         # calculate UTM zone from avg longitude to define CRS to project to
         utm_zone = int(math.floor((avg_lng + 180) / 6.0) + 1)
-        utm_crs = ('+proj=utm +zone={} +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
-                   .format(utm_zone))
+        utm_crs = ('+proj=utm +zone={} +ellps=WGS84 '
+                   '+datum=WGS84 +units=m +no_defs'.format(utm_zone))
 
         # project the GeoDataFrame to the UTM CRS
         gdf_proj = gdf.to_crs(utm_crs)

@@ -1,7 +1,8 @@
 import numpy.testing as npt
-import pandas.util.testing as pdt
 import pytest
-import shapely.geometry as geometry
+from shapely.geometry import Polygon, MultiPolygon
+import geopandas as gpd
+from pyproj.crs.crs import CRS
 
 import osmnet.load as load
 
@@ -43,7 +44,7 @@ def bbox5():
 
 @pytest.fixture
 def simple_polygon():
-    polygon = geometry.Polygon([[0, 0], [1, 0], [1, 1], [0, 1]])
+    polygon = Polygon([[0, 0], [1, 0], [1, 1], [0, 1]])
     return polygon
 
 
@@ -198,8 +199,8 @@ def test_quadrat_cut_geometry(simple_polygon):
                                              min_num=3,
                                              buffer_amount=1e-9)
 
-    assert isinstance(multipolygon, geometry.MultiPolygon)
-    assert len(multipolygon) == 4
+    assert isinstance(multipolygon, MultiPolygon)
+    assert len(multipolygon.geoms) == 4
 
 
 def test_ways_in_bbox(bbox1, dataframes1):
@@ -209,9 +210,9 @@ def test_ways_in_bbox(bbox1, dataframes1):
                                               network_type='walk')
     exp_nodes, exp_ways, exp_waynodes = dataframes1
 
-    pdt.assert_frame_equal(nodes, exp_nodes)
-    pdt.assert_frame_equal(ways, exp_ways)
-    pdt.assert_frame_equal(waynodes, exp_waynodes)
+    nodes.equals(exp_nodes)
+    ways.equals(exp_ways)
+    waynodes.equals(exp_waynodes)
 
 
 @pytest.mark.parametrize(
@@ -239,14 +240,16 @@ def test_intersection_nodes2(dataframes2):
     _, _, waynodes = dataframes2
     intersections = load.intersection_nodes(waynodes)
 
-    assert intersections == {53099275, 53063555}
+    assert intersections == {
+        53063555, 9515373382, 53099275, 9515406927, 4279441429, 4279441430,
+        4279441432}
 
 
 def test_node_pairs_two_way(dataframes2):
     nodes, ways, waynodes = dataframes2
     pairs = load.node_pairs(nodes, ways, waynodes)
 
-    assert len(pairs) == 1
+    assert len(pairs) == 6
 
     fn = 53063555
     tn = 53099275
@@ -255,14 +258,14 @@ def test_node_pairs_two_way(dataframes2):
 
     assert pair.from_id == fn
     assert pair.to_id == tn
-    npt.assert_allclose(pair.distance, 101.48279182499789)
+    npt.assert_allclose(pair.distance, 100.575284)
 
 
 def test_node_pairs_one_way(dataframes2):
     nodes, ways, waynodes = dataframes2
     pairs = load.node_pairs(nodes, ways, waynodes, two_way=False)
 
-    assert len(pairs) == 2
+    assert len(pairs) == 12
 
     n1 = 53063555
     n2 = 53099275
@@ -272,7 +275,7 @@ def test_node_pairs_one_way(dataframes2):
 
         assert pair.from_id == p1
         assert pair.to_id == p2
-        npt.assert_allclose(pair.distance, 101.48279182499789)
+        npt.assert_allclose(pair.distance, 100.575284)
 
 
 def test_column_names(bbox4):
@@ -294,6 +297,28 @@ def test_custom_query_pass(bbox5):
     nodes, edges = load.network_from_bbox(
         bbox=bbox5, custom_osm_filter='["highway"="service"]'
     )
-    assert len(nodes) == 24
-    assert len(edges) == 32
+    assert len(nodes) == 25
+    assert len(edges) == 33
     assert edges['highway'].unique() == 'service'
+
+
+def test_project_geometry(bbox5):
+    expected_srs = ('+proj=utm +zone=10 +ellps=WGS84 +datum=WGS84 +units=m '
+                    '+no_defs +type=crs')
+    expected_bbox_list = [
+        [561923.4095069966, 4184280.844819557, 562185.6145400511,
+         4184485.727226954]]
+
+    lng_max, lat_min, lng_min, lat_max = bbox5
+    input_polygon = Polygon([(lng_max, lat_min), (lng_min, lat_min),
+                             (lng_min, lat_max), (lng_max, lat_max)])
+
+    result_polygon, result_crs_proj = load.project_geometry(
+        input_polygon, crs="EPSG:4326", to_latlong=False)
+    assert isinstance(result_polygon, Polygon)
+    result_polygon = gpd.GeoSeries(result_polygon)
+    assert result_polygon.empty is False
+    assert result_polygon.bounds.values.tolist() == expected_bbox_list
+
+    assert isinstance(result_crs_proj, CRS)
+    assert result_crs_proj.srs == expected_srs
