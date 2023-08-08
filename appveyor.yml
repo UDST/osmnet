@@ -2,7 +2,7 @@ build: false
 
 environment:
   matrix:
-    - PYTHON: 3.6
+    - PYTHON: 3.8
 
 init:
   - "ECHO %PYTHON%"
