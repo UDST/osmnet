@@ -7,6 +7,33 @@ Tools for the extraction of OpenStreetMap (OSM) street network data.
 Intended to be used in tandem with Pandana and UrbanAccess libraries to
 extract street network nodes and edges.
 
+Project scope and status
+------------------------
+
+**Status:** Deprecated / Migration
+
+**Mission:** OSMnet provides the legacy OpenStreetMap network-acquisition
+functionality used by existing Pandana and UrbanAccess workflows while those
+projects migrate to maintained OSM libraries.
+
+The project is retained to support:
+
+* existing Pandana and UrbanAccess integrations;
+* compatibility needed during the migration period;
+* documentation of established OSMnet workflows; and
+* orderly transition of downstream users.
+
+New applications should use actively maintained OSM libraries such as OSMnx
+or Pyrosm for OpenStreetMap network acquisition.
+
+OSMnet will be archived after dependent UDST projects no longer require it.
+Development during the migration period is limited primarily to critical
+compatibility and migration support.
+
+See the `UDST Project Directory
+<https://github.com/UDST/.github/blob/main/PROJECTS.md>`__ for
+organization-wide project status and policy.
+
 Overview
 ========
 
