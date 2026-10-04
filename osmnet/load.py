@@ -23,7 +23,13 @@ import datetime as dt
 import geopandas as gpd
 
 from osmnet import config
+from osmnet import __version__
 from osmnet.utils import log, great_circle_dist as gcd
+
+# Overpass rejects requests without a descriptive User-Agent (HTTP 406)
+USER_AGENT = 'osmnet/{} (+https://github.com/UDST/osmnet)'.format(
+    __version__)
+OVERPASS_STATUS_URL = 'https://overpass-api.de/api/status'
 
 
 def osm_filter(network_type):
@@ -231,7 +237,7 @@ def overpass_request(data, pause_duration=None, timeout=180,
     start_time = time.time()
     log('Posting to {} with timeout={}, "{}"'.format(url, timeout, data))
     headers = {
-        "User-Agent": f"osmnet"
+        "User-Agent": USER_AGENT
     }
     response = requests.post(
         url,
@@ -297,13 +303,15 @@ def get_pause_duration(recursive_delay=5, default_duration=10):
     pause_duration : int
     """
     try:
-        response = requests.get('http://overpass-api.de/api/status')
+        response = requests.get(OVERPASS_STATUS_URL,
+                                headers={'User-Agent': USER_AGENT},
+                                timeout=30)
         status = response.text.split('\n')[3]
         status_first_token = status.split(' ')[0]
     except Exception:
         # if status endpoint cannot be reached or output parsed, log error
         # and return default duration
-        log('Unable to query http://overpass-api.de/api/status',
+        log('Unable to query {}'.format(OVERPASS_STATUS_URL),
             level=lg.ERROR)
         return default_duration
 
