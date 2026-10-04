@@ -226,11 +226,19 @@ def overpass_request(data, pause_duration=None, timeout=180,
     """
 
     # define the Overpass API URL, then construct a GET-style URL
-    url = 'http://www.overpass-api.de/api/interpreter'
+    url = 'https://www.overpass-api.de/api/interpreter'
 
     start_time = time.time()
     log('Posting to {} with timeout={}, "{}"'.format(url, timeout, data))
-    response = requests.post(url, data=data, timeout=timeout)
+    headers = {
+        "User-Agent": f"osmnet"
+    }
+    response = requests.post(
+        url,
+        data=data,
+        headers=headers,
+        timeout=timeout,
+    )
 
     # get the response size and the domain, log result
     size_kb = len(response.content) / 1000.
