@@ -1,3 +1,5 @@
+import os
+
 import numpy.testing as npt
 import pytest
 from shapely.geometry import Polygon, MultiPolygon
@@ -5,6 +7,12 @@ import geopandas as gpd
 from pyproj.crs.crs import CRS
 
 import osmnet.load as load
+
+# tests that query the live Overpass API; set OSMNET_SKIP_NETWORK_TESTS=1 to
+# skip them (as CI does)
+requires_network = pytest.mark.skipif(
+    os.environ.get('OSMNET_SKIP_NETWORK_TESTS') == '1',
+    reason='queries the live Overpass API')
 
 
 @pytest.fixture(scope='module')
@@ -84,6 +92,7 @@ def dataframes2(query_data2):
     return load.parse_network_osm_query(query_data2)
 
 
+@requires_network
 def test_make_osm_query(query_data1):
     assert isinstance(query_data1, dict)
     assert len(query_data1['elements']) == 27
@@ -153,6 +162,7 @@ def test_process_way():
     assert waynodes == expected_waynodes
 
 
+@requires_network
 def test_parse_network_osm_query(dataframes1):
     nodes, ways, waynodes = dataframes1
 
@@ -161,6 +171,7 @@ def test_parse_network_osm_query(dataframes1):
     assert len(waynodes.index.unique()) == 4
 
 
+@requires_network
 def test_parse_network_osm_query_raises():
     query_template = '[out:json][timeout:{timeout}]{maxsize};(way["highway"]' \
                      '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},' \
@@ -174,6 +185,7 @@ def test_parse_network_osm_query_raises():
         load.parse_network_osm_query(data)
 
 
+@requires_network
 def test_overpass_request_raises(bbox5):
     lat_min, lng_max, lat_max, lng_min = bbox5
     query_template = '[out:json][timeout:{timeout}]{maxsize};(way["highway"]' \
@@ -187,6 +199,7 @@ def test_overpass_request_raises(bbox5):
         load.overpass_request(data={'data': query_str})
 
 
+@requires_network
 def test_get_pause_duration():
     error_pause_duration = load.get_pause_duration(recursive_delay=5,
                                                    default_duration=10)
@@ -203,6 +216,7 @@ def test_quadrat_cut_geometry(simple_polygon):
     assert len(multipolygon.geoms) == 4
 
 
+@requires_network
 def test_ways_in_bbox(bbox1, dataframes1):
     lat_min, lng_max, lat_max, lng_min = bbox1
     nodes, ways, waynodes = load.ways_in_bbox(lat_min=lat_min, lng_min=lng_min,
@@ -215,6 +229,7 @@ def test_ways_in_bbox(bbox1, dataframes1):
     waynodes.equals(exp_waynodes)
 
 
+@requires_network
 @pytest.mark.parametrize(
     'network_type, noset',
     [('walk', {'motorway', 'motorway_link'}),
@@ -229,6 +244,7 @@ def test_ways_in_bbox_walk_network(bbox3, network_type, noset):
         assert way['highway'] not in noset
 
 
+@requires_network
 def test_intersection_nodes1(dataframes1):
     _, _, waynodes = dataframes1
     intersections = load.intersection_nodes(waynodes)
@@ -236,6 +252,7 @@ def test_intersection_nodes1(dataframes1):
     assert intersections == {53041093}
 
 
+@requires_network
 def test_intersection_nodes2(dataframes2):
     _, _, waynodes = dataframes2
     intersections = load.intersection_nodes(waynodes)
@@ -245,6 +262,7 @@ def test_intersection_nodes2(dataframes2):
         4279441432}
 
 
+@requires_network
 def test_node_pairs_two_way(dataframes2):
     nodes, ways, waynodes = dataframes2
     pairs = load.node_pairs(nodes, ways, waynodes)
@@ -261,6 +279,7 @@ def test_node_pairs_two_way(dataframes2):
     npt.assert_allclose(pair.distance, 100.575284)
 
 
+@requires_network
 def test_node_pairs_one_way(dataframes2):
     nodes, ways, waynodes = dataframes2
     pairs = load.node_pairs(nodes, ways, waynodes, two_way=False)
@@ -278,6 +297,7 @@ def test_node_pairs_one_way(dataframes2):
         npt.assert_allclose(pair.distance, 100.575284)
 
 
+@requires_network
 def test_column_names(bbox4):
 
     nodes, edges = load.network_from_bbox(
@@ -293,6 +313,7 @@ def test_column_names(bbox4):
         assert col in edges.columns
 
 
+@requires_network
 def test_custom_query_pass(bbox5):
     nodes, edges = load.network_from_bbox(
         bbox=bbox5, custom_osm_filter='["highway"="service"]'
