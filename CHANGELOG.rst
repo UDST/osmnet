@@ -1,3 +1,12 @@
+Unreleased
+==========
+
+* sends a User-Agent header with Overpass API requests and uses https, fixing HTTP 406 errors (#33, thanks to Rhys Williams)
+* uses a descriptive User-Agent, ``osmnet/<version> (+https://github.com/UDST/osmnet)``, for both the interpreter and status requests
+* ``get_pause_duration()`` now queries the status page over https with the User-Agent and finds the slot line by content, so it tolerates the current page layout
+* retries are bounded: ``overpass_request()`` gets a ``max_retries`` argument (default 5) and raises ``OverpassRetryError`` when 429/504 responses persist; ``get_pause_duration()`` gets a ``max_retries`` argument and falls back to ``default_duration`` while the server stays busy
+* adds a GitHub Actions workflow running the offline unit tests on Python 3.10-3.13
+
 v0.1.7
 ======
 
