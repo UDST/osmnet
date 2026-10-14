@@ -1,7 +1,7 @@
 version: 2
 updates:
-  # Keep the GitHub Actions used by the workflows current. Once actions are
-  # pinned by commit SHA, this is what keeps the pins from going stale.
+  # Keep the GitHub Actions used by the workflows current. The actions are
+  # pinned by commit SHA, and this keeps the pins from going stale.
   - package-ecosystem: github-actions
     directory: /
     schedule:

@@ -29,8 +29,9 @@ master_doc = 'index'
 project = u'OSMnet'
 copyright = u'2023, UrbanSim Inc.'
 author = u'UrbanSim Inc.'
-version = u'0.1.7'
-release = u'0.1.7'
+# The short X.Y version and the full version, read from the installed package.
+import osmnet
+version = release = osmnet.__version__
 language = 'en'
 
 nitpicky = True
