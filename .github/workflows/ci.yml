@@ -4,27 +4,172 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  tests:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13']
-    env:
-      # tests that query the live Overpass API are skipped
-      OSMNET_SKIP_NETWORK_TESTS: '1'
+        include:
+          # Lower support boundary: oldest Python plus the minimum
+          # supported versions of the core dependencies
+          - name: Python 3.10 + minimum deps
+            os: ubuntu-latest
+            python-version: "3.10"
+            pip-args: -c requirements-min.txt
+          # Forward boundary: newest supported Python plus current
+          # versions of all dependencies, on each operating system
+          - name: Python 3.14 + latest deps
+            os: ubuntu-latest
+            python-version: "3.14"
+            pip-args: ""
+          - name: Python 3.14 + latest deps (macOS)
+            os: macos-latest
+            python-version: "3.14"
+            pip-args: ""
+          - name: Python 3.14 + latest deps (Windows)
+            os: windows-latest
+            python-version: "3.14"
+            pip-args: ""
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-min.txt
+
+      - name: Install package and test dependencies
+        run: python -m pip install ".[test]" ${{ matrix.pip-args }}
+
+      - name: Show dependency versions
+        run: python -m pip list
+
+      # The tests replay saved Overpass responses; the live API tests in
+      # test_live.py are skipped unless OSMNET_LIVE_TESTS=1
+      - name: Run tests
+        run: python -m pytest --cov
+
+  live:
+    name: Live Overpass API
+    # Run on demand only: the public API is shared and sometimes overloaded
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OSMNET_LIVE_TESTS: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install package and test dependencies
+        run: python -m pip install ".[test]"
+
+      - name: Run live API tests
+        run: python -m pytest -v osmnet/tests/test_live.py
+
+  style:
+    name: Code style
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.14"
+
+      - name: Install style checker
+        run: python -m pip install pycodestyle
+
+      - name: Check code style
+        run: pycodestyle --max-line-length=100 osmnet
+
+  build:
+    name: Package build and install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.14"
+
+      - name: Build distributions
         run: |
-          python -m pip install --upgrade pip
-          pip install -e . pytest
-          pip list
-      - name: Test
-        run: pytest -v osmnet
+          python -m pip install build twine
+          python -m build
+          python -m twine check --strict dist/*
+
+      - name: Install wheel and validate dependencies
+        run: |
+          python -m pip install dist/*.whl
+          python -m pip check
+
+      - name: Import installed package outside the source tree
+        working-directory: /tmp
+        run: python -c "import osmnet; print(osmnet.__version__)"
+
+  docs:
+    name: Documentation build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install package and documentation tools
+        run: python -m pip install ".[docs]"
+
+      - name: Build documentation (warnings are errors)
+        run: python -m sphinx -E -W --keep-going -b html docs/source docs/build/html
