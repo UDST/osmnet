@@ -29,7 +29,13 @@ from osmnet.utils import log, great_circle_dist as gcd
 # Overpass rejects requests without a descriptive User-Agent (HTTP 406)
 USER_AGENT = 'osmnet/{} (+https://github.com/UDST/osmnet)'.format(
     __version__)
+OVERPASS_URL = 'https://overpass-api.de/api/interpreter'
 OVERPASS_STATUS_URL = 'https://overpass-api.de/api/status'
+
+# minimum pause in seconds before re-trying after a 429 or 504; doubles with
+# each retry up to the maximum
+RETRY_MIN_PAUSE = 5
+RETRY_MAX_PAUSE = 60
 
 
 class OverpassRetryError(Exception):
@@ -226,13 +232,14 @@ def overpass_request(data, pause_duration=None, timeout=180,
     data : dict or OrderedDict
         key-value pairs of parameters to post to Overpass API
     pause_duration : int
-        how long to pause in seconds before requests, if None, will query
-        Overpass API status endpoint
-        to find when next slot is available
+        not used; kept for backward compatibility
     timeout : int
         the timeout interval for the requests library
     error_pause_duration : int
-        how long to pause in seconds before re-trying requests if error
+        how long to pause in seconds before re-trying requests if error. if
+        None, the pause is the wait reported by the Overpass API status
+        endpoint, but at least RETRY_MIN_PAUSE seconds, doubling with each
+        retry up to RETRY_MAX_PAUSE
     max_retries : int
         how many times to re-try the request after a 429 or 504 response
         before raising OverpassRetryError
@@ -242,8 +249,7 @@ def overpass_request(data, pause_duration=None, timeout=180,
     response_json : dict
     """
 
-    # define the Overpass API URL, then construct a GET-style URL
-    url = 'https://www.overpass-api.de/api/interpreter'
+    url = OVERPASS_URL
     headers = {
         "User-Agent": USER_AGENT
     }
@@ -270,8 +276,8 @@ def overpass_request(data, pause_duration=None, timeout=180,
         try:
             response_json = response.json()
             if 'remark' in response_json:
-                log('Server remark: "{}"'.format(response_json['remark'],
-                                                 level=lg.WARNING))
+                log('Server remark: "{}"'.format(response_json['remark']),
+                    level=lg.WARNING)
             return response_json
 
         except Exception:
@@ -289,7 +295,10 @@ def overpass_request(data, pause_duration=None, timeout=180,
         # pause for error_pause_duration seconds before re-trying request
         pause = error_pause_duration
         if pause is None:
-            pause = get_pause_duration()
+            # the status endpoint reports free slots even while the server
+            # is overloaded and returning 504s, so back off regardless
+            min_pause = min(RETRY_MIN_PAUSE * 2 ** attempt, RETRY_MAX_PAUSE)
+            pause = max(get_pause_duration(), min_pause)
         log('Server at {} returned status code {} and no JSON data. '
             'Re-trying request in {:.2f} seconds (retry {} of {}).'
             .format(domain, response.status_code, pause, attempt + 1,

@@ -174,12 +174,26 @@ def test_overpass_request_sends_user_agent(monkeypatch, no_sleep):
     calls = []
 
     def fake_post(url, **kwargs):
-        calls.append(kwargs)
+        calls.append((url, kwargs))
         return FakeResponse(text='{}', json_data={'elements': []})
 
     monkeypatch.setattr(load.requests, 'post', fake_post)
     assert load.overpass_request(data={'data': 'q'}) == {'elements': []}
-    assert calls[0]['headers']['User-Agent'] == load.USER_AGENT
+    url, kwargs = calls[0]
+    assert url == 'https://overpass-api.de/api/interpreter'
+    assert kwargs['headers']['User-Agent'] == load.USER_AGENT
+
+
+def test_overpass_request_logs_remark_as_warning(monkeypatch, caplog):
+    remark = 'runtime error: Query timed out'
+    monkeypatch.setattr(
+        load.requests, 'post',
+        lambda url, **kw: FakeResponse(
+            text='{}', json_data={'elements': [], 'remark': remark}))
+    with caplog.at_level('WARNING', logger='osmnet'):
+        load.overpass_request(data={'data': 'q'})
+    assert any(remark in r.getMessage() and r.levelname == 'WARNING'
+               for r in caplog.records)
 
 
 def test_overpass_request_retries_then_succeeds(monkeypatch, no_sleep):
@@ -206,6 +220,44 @@ def test_overpass_request_retry_exhaustion(monkeypatch, no_sleep):
                               max_retries=3)
     assert len(calls) == 4
     assert no_sleep == [1, 1, 1]
+
+
+def test_overpass_request_504_backs_off_when_slots_free(monkeypatch,
+                                                        no_sleep):
+    # the status page says slots are free, but the server is overloaded
+    responses = [FakeResponse(status_code=504) for _ in range(3)]
+    responses.append(FakeResponse(text='{}', json_data={'elements': [1]}))
+    monkeypatch.setattr(load.requests, 'post',
+                        lambda url, **kw: responses.pop(0))
+    monkeypatch.setattr(load.requests, 'get',
+                        lambda url, **kw: FakeResponse(
+                            text=STATUS_LIVE_2026_10_04))
+    assert load.overpass_request(data={'data': 'q'}) == {'elements': [1]}
+    assert no_sleep == [5, 10, 20]
+
+
+def test_overpass_request_backoff_is_capped(monkeypatch, no_sleep):
+    monkeypatch.setattr(load.requests, 'post',
+                        lambda url, **kw: FakeResponse(status_code=504))
+    monkeypatch.setattr(load.requests, 'get',
+                        lambda url, **kw: FakeResponse(
+                            text=STATUS_LIVE_2026_10_04))
+    with pytest.raises(load.OverpassRetryError):
+        load.overpass_request(data={'data': 'q'}, max_retries=6)
+    assert no_sleep == [5, 10, 20, 40, 60, 60]
+
+
+def test_overpass_request_uses_longer_status_wait(monkeypatch, no_sleep):
+    text = STATUS_SLOT_TEMPLATE.format(late=_utc_in(120), early=_utc_in(30))
+    responses = [FakeResponse(status_code=429),
+                 FakeResponse(text='{}', json_data={'elements': [1]})]
+    monkeypatch.setattr(load.requests, 'post',
+                        lambda url, **kw: responses.pop(0))
+    monkeypatch.setattr(load.requests, 'get',
+                        lambda url, **kw: FakeResponse(text=text))
+    assert load.overpass_request(data={'data': 'q'}) == {'elements': [1]}
+    assert len(no_sleep) == 1
+    assert 25 <= no_sleep[0] <= 31
 
 
 def test_overpass_request_default_max_retries(monkeypatch, no_sleep):
