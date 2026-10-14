@@ -15,6 +15,7 @@ Unreleased
 * no longer uses GeoPandas' deprecated ``GeoSeries.unary_union``
 * the tests replay saved Overpass API responses, so they no longer depend on the live API or on later edits to OpenStreetMap; ``OSMNET_RECORD_OVERPASS=1`` refreshes the saved responses, and the live API tests in ``test_live.py`` run with ``OSMNET_LIVE_TESTS=1``
 * CI on GitHub Actions: minimum dependencies on Python 3.10, latest dependencies on Python 3.14 (Linux, macOS, Windows), code style, package build and install, and a strict documentation build; Travis and AppVeyor configurations removed
+* releases are published to PyPI by a GitHub Actions workflow using Trusted Publishing, after the distributions are built and the tests pass against the installed wheel; ``CONTRIBUTING.md`` describes the release process
 
 v0.1.7
 ======
