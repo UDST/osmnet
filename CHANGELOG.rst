@@ -1,3 +1,17 @@
+Unreleased
+==========
+
+* sends a User-Agent header with Overpass API requests and uses https, fixing HTTP 406 errors (#33, thanks to Rhys Williams)
+* uses a descriptive User-Agent, ``osmnet/<version> (+https://github.com/UDST/osmnet)``, for both the interpreter and status requests
+* ``get_pause_duration()`` now queries the status page over https with the User-Agent and finds the slot line by content, so it tolerates the current page layout
+* retries are bounded: ``overpass_request()`` gets a ``max_retries`` argument (default 5) and raises ``OverpassRetryError`` when 429/504 responses persist; ``get_pause_duration()`` gets a ``max_retries`` argument and falls back to ``default_duration`` while the server stays busy
+* unless ``error_pause_duration`` is given, retries wait at least 5 seconds, doubling up to 60, even when the status page reports free slots, so 504s from an overloaded server are not retried back to back
+* ``osm_net_download()``, ``ways_in_bbox()`` and ``network_from_bbox()`` accept ``max_retries`` and pass it on to each Overpass request, so large downloads can allow more retries
+* the wait for the next free slot is read from the status page's "in N seconds" rather than computed from its timestamp and the local clock; ``python-dateutil`` is no longer imported
+* the interpreter request goes to ``overpass-api.de``, the same host as the status request
+* server remarks in an Overpass response are logged as warnings, as intended
+* adds a GitHub Actions workflow running the offline unit tests on Python 3.10-3.13
+
 v0.1.7
 ======
 

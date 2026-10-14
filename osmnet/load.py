@@ -18,12 +18,31 @@ import logging as lg
 import numpy as np
 from shapely.geometry import LineString, Polygon, MultiPolygon
 from shapely.ops import unary_union
-from dateutil import parser as date_parser
 import datetime as dt
 import geopandas as gpd
 
 from osmnet import config
+from osmnet import __version__
 from osmnet.utils import log, great_circle_dist as gcd
+
+# Overpass rejects requests without a descriptive User-Agent (HTTP 406)
+USER_AGENT = 'osmnet/{} (+https://github.com/UDST/osmnet)'.format(
+    __version__)
+OVERPASS_URL = 'https://overpass-api.de/api/interpreter'
+OVERPASS_STATUS_URL = 'https://overpass-api.de/api/status'
+
+# minimum pause in seconds before re-trying after a 429 or 504; doubles with
+# each retry up to the maximum
+RETRY_MIN_PAUSE = 5
+RETRY_MAX_PAUSE = 60
+
+
+class OverpassRetryError(Exception):
+    """
+    Raised when the Overpass API keeps returning 429/504 after the
+    maximum number of retries.
+    """
+    pass
 
 
 def osm_filter(network_type):
@@ -70,7 +89,7 @@ def osm_filter(network_type):
 def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                      network_type='walk', timeout=180, memory=None,
                      max_query_area_size=50*1000*50*1000,
-                     custom_osm_filter=None):
+                     custom_osm_filter=None, max_retries=5):
     """
     Download OSM ways and nodes within a bounding box from the Overpass API.
 
@@ -103,6 +122,12 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         follow Overpass API schema. For
         example to request highway ways that are service roads use:
         '["highway"="service"]'
+    max_retries : int, optional
+        how many times to re-try each Overpass request after a 429 or 504
+        response before raising OverpassRetryError. Retries wait at least
+        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
+        default of 5 gives up after about two and a half minutes. Raise it
+        for large bounding boxes that need many requests
 
     Returns
     -------
@@ -162,7 +187,8 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                                           filters=request_filter,
                                           timeout=timeout, maxsize=maxsize)
         response_json = overpass_request(data={'data': query_str},
-                                         timeout=timeout)
+                                         timeout=timeout,
+                                         max_retries=max_retries)
 
         response_jsons_list.append(response_json)
 
@@ -202,7 +228,7 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
 
 
 def overpass_request(data, pause_duration=None, timeout=180,
-                     error_pause_duration=None):
+                     error_pause_duration=None, max_retries=5):
     """
     Send a request to the Overpass API via HTTP POST and return the
     JSON response
@@ -212,74 +238,150 @@ def overpass_request(data, pause_duration=None, timeout=180,
     data : dict or OrderedDict
         key-value pairs of parameters to post to Overpass API
     pause_duration : int
-        how long to pause in seconds before requests, if None, will query
-        Overpass API status endpoint
-        to find when next slot is available
+        not used; kept for backward compatibility
     timeout : int
         the timeout interval for the requests library
     error_pause_duration : int
-        how long to pause in seconds before re-trying requests if error
+        how long to pause in seconds before re-trying requests if error. if
+        None, the pause is the wait reported by the Overpass API status
+        endpoint, but at least RETRY_MIN_PAUSE seconds, doubling with each
+        retry up to RETRY_MAX_PAUSE
+    max_retries : int
+        how many times to re-try the request after a 429 or 504 response
+        before raising OverpassRetryError
 
     Returns
     -------
     response_json : dict
     """
 
-    # define the Overpass API URL, then construct a GET-style URL
-    url = 'https://www.overpass-api.de/api/interpreter'
+    if max_retries < 0:
+        raise ValueError('max_retries must be 0 or greater')
 
-    start_time = time.time()
-    log('Posting to {} with timeout={}, "{}"'.format(url, timeout, data))
-    headers = {
-        "User-Agent": f"osmnet"
-    }
-    response = requests.post(
-        url,
-        data=data,
-        headers=headers,
-        timeout=timeout,
-    )
-
-    # get the response size and the domain, log result
-    size_kb = len(response.content) / 1000.
+    url = OVERPASS_URL
     domain = re.findall(r'(?s)//(.*?)/', url)[0]
-    log('Downloaded {:,.1f}KB from {} in {:,.2f} seconds'
-        .format(size_kb, domain, time.time()-start_time))
+    headers = {
+        "User-Agent": USER_AGENT
+    }
 
-    try:
-        response_json = response.json()
-        if 'remark' in response_json:
-            log('Server remark: "{}"'.format(response_json['remark'],
-                                             level=lg.WARNING))
+    # 429 = 'too many requests' and 504 = 'gateway timeout' from server
+    # overload. handle these errors by re-trying the request, at most
+    # max_retries times
+    for attempt in range(max_retries + 1):
+        start_time = time.time()
+        log('Posting to {} with timeout={}, "{}"'.format(url, timeout, data))
+        response = requests.post(
+            url,
+            data=data,
+            headers=headers,
+            timeout=timeout,
+        )
 
-    except Exception:
-        # 429 = 'too many requests' and 504 = 'gateway timeout' from server
-        # overload. handle these errors by recursively
-        # calling overpass_request until a valid response is achieved
-        if response.status_code in [429, 504]:
-            # pause for error_pause_duration seconds before re-trying request
-            if error_pause_duration is None:
-                error_pause_duration = get_pause_duration()
-            log('Server at {} returned status code {} and no JSON data. '
-                'Re-trying request in {:.2f} seconds.'
-                .format(domain, response.status_code, error_pause_duration),
-                level=lg.WARNING)
-            time.sleep(error_pause_duration)
-            response_json = overpass_request(data=data,
-                                             pause_duration=pause_duration,
-                                             timeout=timeout)
+        # get the response size, log result
+        size_kb = len(response.content) / 1000.
+        log('Downloaded {:,.1f}KB from {} in {:,.2f} seconds'
+            .format(size_kb, domain, time.time()-start_time))
 
-        # else, this was an unhandled status_code, throw an exception
-        else:
-            log('Server at {} returned status code {} and no JSON data'
-                .format(domain, response.status_code), level=lg.ERROR)
-            raise Exception('Server returned no JSON data.\n{} {}\n{}'
-                            .format(response, response.reason, response.text))
+        try:
+            response_json = response.json()
+            if 'remark' in response_json:
+                log('Server remark: "{}"'.format(response_json['remark']),
+                    level=lg.WARNING)
+            return response_json
 
-    return response_json
+        except Exception:
+            # else, this was an unhandled status_code, throw an exception
+            if response.status_code not in [429, 504]:
+                log('Server at {} returned status code {} and no JSON data'
+                    .format(domain, response.status_code), level=lg.ERROR)
+                raise Exception('Server returned no JSON data.\n{} {}\n{}'
+                                .format(response, response.reason,
+                                        response.text))
+
+        if attempt == max_retries:
+            break
+
+        # pause for error_pause_duration seconds before re-trying request
+        pause = error_pause_duration
+        if pause is None:
+            # the status endpoint reports free slots even while the server
+            # is overloaded and returning 504s, so back off regardless
+            min_pause = min(RETRY_MIN_PAUSE * 2 ** attempt, RETRY_MAX_PAUSE)
+            pause = max(get_pause_duration(), min_pause)
+        log('Server at {} returned status code {} and no JSON data. '
+            'Re-trying request in {:.2f} seconds (retry {} of {}).'
+            .format(domain, response.status_code, pause, attempt + 1,
+                    max_retries),
+            level=lg.WARNING)
+        time.sleep(pause)
+
+    log('Server at {} returned status code {} after {} retries; giving up'
+        .format(domain, response.status_code, max_retries), level=lg.ERROR)
+    raise OverpassRetryError(
+        'Overpass API at {} still returned status code {} after {} '
+        'retries.'.format(domain, response.status_code, max_retries))
 
 
-def get_pause_duration(recursive_delay=5, default_duration=10):
+def _parse_overpass_status(text):
+    """
+    Parse the text of the Overpass API /api/status page.
+
+    The relevant line is found by its content, not its position, because the
+    page layout has changed over time (e.g. the 'Rate limit' and
+    'Announced endpoint' lines).
+
+    Parameters
+    ----------
+    text : str
+        body of the /api/status response
+
+    Returns
+    -------
+    status : tuple
+        ('available', n_slots), ('slot', seconds until the next slot is
+        free), ('busy', None) if all slots are taken by running queries, or
+        (None, None) if the text is not recognized
+    """
+    lines = [line.strip() for line in text.splitlines()]
+
+    # "2 slots available now."
+    for line in lines:
+        match = re.match(r'^(\d+)\s+slots?\s+available', line)
+        if match and int(match.group(1)) > 0:
+            return 'available', int(match.group(1))
+
+    # "Slot available after: 2026-10-04T12:20:01Z, in 107 seconds."
+    # there is one such line per busy slot; use the earliest. prefer the
+    # server's own count of seconds, which does not depend on the local
+    # clock, and fall back on the timestamp
+    waits = []
+    for line in lines:
+        if not line.startswith('Slot'):
+            continue
+        match = re.search(r'in (-?\d+) seconds?', line)
+        if match:
+            waits.append(int(match.group(1)))
+            continue
+        match = re.search(r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)', line)
+        if match:
+            utc_time = dt.datetime.strptime(
+                match.group(1), '%Y-%m-%dT%H:%M:%SZ').replace(
+                tzinfo=dt.timezone.utc)
+            now = dt.datetime.now(dt.timezone.utc)
+            waits.append(math.ceil((utc_time - now).total_seconds()))
+    if waits:
+        return 'slot', max(min(waits), 1)
+
+    # no free slot and no release time: "Currently running queries ..."
+    for line in lines:
+        if line.startswith('Currently'):
+            return 'busy', None
+
+    return None, None
+
+
+def get_pause_duration(recursive_delay=5, default_duration=10,
+                       max_retries=5):
     """
     Check the Overpass API status endpoint to determine how long to wait until
     next slot is available.
@@ -287,54 +389,58 @@ def get_pause_duration(recursive_delay=5, default_duration=10):
     Parameters
     ----------
     recursive_delay : int
-        how long to wait between recursive calls if server is currently
+        how long to wait between status checks if server is currently
         running a query
     default_duration : int
         if fatal error, function falls back on returning this value
+    max_retries : int
+        how many times to re-check the status while the server is busy
+        before falling back on default_duration
 
     Returns
     -------
     pause_duration : int
     """
-    try:
-        response = requests.get('http://overpass-api.de/api/status')
-        status = response.text.split('\n')[3]
-        status_first_token = status.split(' ')[0]
-    except Exception:
-        # if status endpoint cannot be reached or output parsed, log error
-        # and return default duration
-        log('Unable to query http://overpass-api.de/api/status',
-            level=lg.ERROR)
-        return default_duration
-
-    try:
-        # if first token is numeric, it indicates the number of slots
-        # available - no wait required
-        available_slots = int(status_first_token)
-        pause_duration = 0
-    except Exception:
-        # if first token is 'Slot', it tells you when your slot will be free
-        if status_first_token == 'Slot':
-            utc_time_str = status.split(' ')[3]
-            utc_time = date_parser.parse(utc_time_str).replace(tzinfo=None)
-            pause_duration = math.ceil(
-                (utc_time - dt.datetime.utcnow()).total_seconds())
-            pause_duration = max(pause_duration, 1)
-
-        # if first token is 'Currently', it is currently running a query so
-        # check back in recursive_delay seconds
-        elif status_first_token == 'Currently':
-            time.sleep(recursive_delay)
-            pause_duration = get_pause_duration()
-
-        else:
-            # any other status is unrecognized - log an error and return
-            # default duration
-            log('Unrecognized server status: "{}"'.format(status),
+    for attempt in range(max_retries + 1):
+        try:
+            response = requests.get(OVERPASS_STATUS_URL,
+                                    headers={'User-Agent': USER_AGENT},
+                                    timeout=30)
+            response.raise_for_status()
+            kind, value = _parse_overpass_status(response.text)
+        except Exception:
+            # if status endpoint cannot be reached or output parsed, log
+            # error and return default duration
+            log('Unable to query {}'.format(OVERPASS_STATUS_URL),
                 level=lg.ERROR)
             return default_duration
 
-    return pause_duration
+        # slots available - no wait required
+        if kind == 'available':
+            return 0
+
+        # the status tells you when your slot will be free
+        if kind == 'slot':
+            return value
+
+        if kind is None:
+            # any other status is unrecognized - log an error and return
+            # default duration
+            log('Unrecognized server status: "{}"'.format(response.text),
+                level=lg.ERROR)
+            return default_duration
+
+        # the server is currently running queries, so check back in
+        # recursive_delay seconds
+        if attempt < max_retries:
+            log('Overpass server is running queries; checking its status '
+                'again in {} seconds'.format(recursive_delay))
+            time.sleep(recursive_delay)
+
+    log('Overpass server still busy after {} status checks; pausing {} '
+        'seconds'.format(max_retries + 1, default_duration),
+        level=lg.WARNING)
+    return default_duration
 
 
 def consolidate_subdivide_geometry(geometry, max_query_area_size):
@@ -614,7 +720,7 @@ def parse_network_osm_query(data):
 def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
                  timeout=180, memory=None,
                  max_query_area_size=50*1000*50*1000,
-                 custom_osm_filter=None):
+                 custom_osm_filter=None, max_retries=5):
     """
     Get DataFrames of OSM data in a bounding box.
 
@@ -647,6 +753,12 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
         follow Overpass API schema. For
         example to request highway ways that are service roads use:
         '["highway"="service"]'
+    max_retries : int, optional
+        how many times to re-try each Overpass request after a 429 or 504
+        response before raising OverpassRetryError. Retries wait at least
+        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
+        default of 5 gives up after about two and a half minutes. Raise it
+        for large bounding boxes that need many requests
 
     Returns
     -------
@@ -658,7 +770,8 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
                          lng_max=lng_max, network_type=network_type,
                          timeout=timeout, memory=memory,
                          max_query_area_size=max_query_area_size,
-                         custom_osm_filter=custom_osm_filter))
+                         custom_osm_filter=custom_osm_filter,
+                         max_retries=max_retries))
 
 
 def intersection_nodes(waynodes):
@@ -771,7 +884,7 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                       bbox=None, network_type='walk', two_way=True,
                       timeout=180, memory=None,
                       max_query_area_size=50*1000*50*1000,
-                      custom_osm_filter=None):
+                      custom_osm_filter=None, max_retries=5):
     """
     Make a graph network from a bounding lat/lon box composed of nodes and
     edges for use in Pandana street network accessibility calculations.
@@ -823,6 +936,12 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         follow Overpass API schema. For
         example to request highway ways that are service roads use:
         '["highway"="service"]'
+    max_retries : int, optional
+        how many times to re-try each Overpass request after a 429 or 504
+        response before raising OverpassRetryError. Retries wait at least
+        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
+        default of 5 gives up after about two and a half minutes. Raise it
+        for large bounding boxes that need many requests
 
     Returns
     -------
@@ -854,7 +973,7 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         lat_min=lat_min, lng_min=lng_min, lat_max=lat_max, lng_max=lng_max,
         network_type=network_type, timeout=timeout,
         memory=memory, max_query_area_size=max_query_area_size,
-        custom_osm_filter=custom_osm_filter)
+        custom_osm_filter=custom_osm_filter, max_retries=max_retries)
     log('Returning OSM data with {:,} nodes and {:,} ways...'
         .format(len(nodes), len(ways)))
 
