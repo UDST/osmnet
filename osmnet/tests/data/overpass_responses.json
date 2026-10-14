@@ -1,5 +1,5 @@
 {
- "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"cycleway|footway|path|pedestrian|steps|track|proposed|construction|bridleway|abandoned|platform|raceway|service\"][\"motor_vehicle\"!~\"no\"][\"motorcar\"!~\"no\"][\"service\"!~\"parking|parking_aisle|driveway|emergency_access\"](37.852255,-122.302959,37.857761,-122.295427);>;);out;": {
+ "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"cycleway|footway|path|pedestrian|steps|track|proposed|construction|bridleway|abandoned|platform|raceway|service\"][\"motor_vehicle\"!~\"no\"][\"motorcar\"!~\"no\"][\"service\"!~\"parking|parking_aisle|driveway|emergency_access\"](37.85225505,-122.30295897,37.85776128,-122.29542732);>;);out;": {
   "elements": [
    {
     "id": 52979274,
@@ -686,20 +686,20 @@
   "generator": "Overpass API 0.7.62.11 87bfad18",
   "osm3s": {
    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
-   "timestamp_osm_base": "2026-10-14T20:11:05Z"
+   "timestamp_osm_base": "2026-10-14T21:30:54Z"
   },
   "version": 0.6
  },
- "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"motor|proposed|construction|abandoned|platform|raceway\"][\"foot\"!~\"no\"][\"pedestrians\"!~\"no\"](37.800000,-122.252000,37.800000,-122.252000);>;);out;": {
+ "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"motor|proposed|construction|abandoned|platform|raceway\"][\"foot\"!~\"no\"][\"pedestrians\"!~\"no\"](37.80000000,-122.25200000,37.80000000,-122.25200000);>;);out;": {
   "elements": [],
   "generator": "Overpass API 0.7.62.11 87bfad18",
   "osm3s": {
    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
-   "timestamp_osm_base": "2026-10-14T20:09:06Z"
+   "timestamp_osm_base": "2026-10-14T21:30:54Z"
   },
   "version": 0.6
  },
- "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"motor|proposed|construction|abandoned|platform|raceway\"][\"foot\"!~\"no\"][\"pedestrians\"!~\"no\"](37.821188,-122.276287,37.824133,-122.270172);>;);out;": {
+ "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"motor|proposed|construction|abandoned|platform|raceway\"][\"foot\"!~\"no\"][\"pedestrians\"!~\"no\"](37.82118796,-122.27628708,37.82413297,-122.27017164);>;);out;": {
   "elements": [
    {
     "id": 53028198,
@@ -4839,11 +4839,11 @@
   "generator": "Overpass API 0.7.62.11 87bfad18",
   "osm3s": {
    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
-   "timestamp_osm_base": "2026-10-14T20:12:04Z"
+   "timestamp_osm_base": "2026-10-14T21:31:55Z"
   },
   "version": 0.6
  },
- "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"motor|proposed|construction|abandoned|platform|raceway\"][\"foot\"!~\"no\"][\"pedestrians\"!~\"no\"](37.852255,-122.302959,37.857761,-122.295427);>;);out;": {
+ "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"motor|proposed|construction|abandoned|platform|raceway\"][\"foot\"!~\"no\"][\"pedestrians\"!~\"no\"](37.85225505,-122.30295897,37.85776128,-122.29542732);>;);out;": {
   "elements": [
    {
     "id": 53055362,
@@ -8000,11 +8000,11 @@
   "generator": "Overpass API 0.7.62.11 87bfad18",
   "osm3s": {
    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
-   "timestamp_osm_base": "2026-10-14T20:11:05Z"
+   "timestamp_osm_base": "2026-10-14T21:30:54Z"
   },
   "version": 0.6
  },
- "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"motor|proposed|construction|abandoned|platform|raceway\"][\"foot\"!~\"no\"][\"pedestrians\"!~\"no\"](37.865930,-122.258800,37.866160,-122.258506);>;);out;": {
+ "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"motor|proposed|construction|abandoned|platform|raceway\"][\"foot\"!~\"no\"][\"pedestrians\"!~\"no\"](37.86593035,-122.25880039,37.86615986,-122.25850625);>;);out;": {
   "elements": [
    {
     "id": 53041088,
@@ -8303,11 +8303,11 @@
   "generator": "Overpass API 0.7.62.11 87bfad18",
   "osm3s": {
    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
-   "timestamp_osm_base": "2026-10-14T20:10:05Z"
+   "timestamp_osm_base": "2026-10-14T21:29:53Z"
   },
   "version": 0.6
  },
- "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"motor|proposed|construction|abandoned|platform|raceway\"][\"foot\"!~\"no\"][\"pedestrians\"!~\"no\"](37.866841,-122.259095,37.867903,-122.258636);>;);out;": {
+ "[out:json][timeout:180];(way[\"highway\"][\"highway\"!~\"motor|proposed|construction|abandoned|platform|raceway\"][\"foot\"!~\"no\"][\"pedestrians\"!~\"no\"](37.86684059,-122.25909487,37.86790281,-122.25863639);>;);out;": {
   "elements": [
    {
     "id": 53041093,
@@ -9355,11 +9355,11 @@
   "generator": "Overpass API 0.7.62.11 87bfad18",
   "osm3s": {
    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
-   "timestamp_osm_base": "2026-10-14T20:12:04Z"
+   "timestamp_osm_base": "2026-10-14T21:30:54Z"
   },
   "version": 0.6
  },
- "[out:json][timeout:180];(way[\"highway\"][\"highway\"=\"service\"](37.803811,-122.296557,37.805640,-122.293596);>;);out;": {
+ "[out:json][timeout:180];(way[\"highway\"][\"highway\"=\"service\"](37.80381120,-122.29655747,37.80564009,-122.29359631);>;);out;": {
   "elements": [
    {
     "id": 52979813,
@@ -10236,7 +10236,7 @@
   "generator": "Overpass API 0.7.62.11 87bfad18",
   "osm3s": {
    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
-   "timestamp_osm_base": "2026-10-14T20:12:04Z"
+   "timestamp_osm_base": "2026-10-14T21:31:55Z"
   },
   "version": 0.6
  }

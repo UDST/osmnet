@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import re
@@ -12,39 +13,57 @@ import osmnet.load as load
 
 # The Overpass responses for the queries in this module are saved in
 # data/overpass_responses.json and replayed, so the tests do not depend on
-# the live API or on later edits to OSM. To refresh them, run this module
-# with OSMNET_RECORD_OVERPASS=1, which queries the live API and saves the
-# responses, then update the expected values below.
+# the live API or on later edits to OSM. To refresh them, run this whole
+# module with OSMNET_RECORD_OVERPASS=1, which queries the live API and
+# replaces the file with the responses to the queries the run makes, then
+# update the expected values below.
 RESPONSES_FILE = os.path.join(os.path.dirname(__file__), 'data',
                               'overpass_responses.json')
 RECORD = os.environ.get('OSMNET_RECORD_OVERPASS') == '1'
 
+# coordinates in a query are compared within a tolerance, so that small
+# differences in the projection round trip between library versions still
+# find the saved response
+_COORD = re.compile(r'-?\d+\.\d+')
+_COORD_TOLERANCE = 1e-6
 
-def _query_key(data):
-    # round the coordinates so that small differences in the projection
-    # round trip between library versions map to the same saved response
-    return re.sub(r'-?\d+\.\d{7,}',
-                  lambda m: '{:.6f}'.format(float(m.group())),
-                  data['data'])
+
+def _same_query(a, b):
+    if _COORD.sub('#', a) != _COORD.sub('#', b):
+        return False
+    return all(abs(float(x) - float(y)) <= _COORD_TOLERANCE
+               for x, y in zip(_COORD.findall(a), _COORD.findall(b)))
+
+
+def _find_saved(responses, query):
+    for key in responses:
+        if _same_query(key, query):
+            return key
+    return None
 
 
 @pytest.fixture(scope='module', autouse=True)
 def saved_overpass_responses():
-    responses = {}
-    if os.path.exists(RESPONSES_FILE):
+    if RECORD:
+        # query each request once and keep only the ones this run makes
+        responses = {}
+    else:
         with open(RESPONSES_FILE) as f:
             responses = json.load(f)
     live_request = load.overpass_request
 
     def replay_request(data, **kwargs):
-        key = _query_key(data)
-        if RECORD:
+        key = _find_saved(responses, data['data'])
+        if key is None and RECORD:
+            key = data['data']
             responses[key] = live_request(data, **kwargs)
-        if key not in responses:
+        if key is None:
             raise KeyError('No saved Overpass response for {!r}. Run the '
                            'tests with OSMNET_RECORD_OVERPASS=1 to save one.'
-                           .format(key))
-        return responses[key]
+                           .format(data['data']))
+        # a copy, so that a test that changes the response cannot affect
+        # later tests
+        return copy.deepcopy(responses[key])
 
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(load, 'overpass_request', replay_request)
@@ -55,6 +74,17 @@ def saved_overpass_responses():
         with open(RESPONSES_FILE, 'w') as f:
             json.dump(responses, f, indent=1, sort_keys=True)
             f.write('\n')
+
+
+def test_same_query_tolerance():
+    query = '(way["highway"](37.86593035,-122.25880039);>;);out;'
+    # differs in the 8th decimal across a 6-decimal rounding boundary
+    assert _same_query(query,
+                       '(way["highway"](37.86593049,-122.25880039);>;);out;')
+    assert not _same_query(
+        query, '(way["highway"](37.86603035,-122.25880039);>;);out;')
+    assert not _same_query(
+        query, '(way["footway"](37.86593035,-122.25880039);>;);out;')
 
 
 @pytest.fixture(scope='module')
