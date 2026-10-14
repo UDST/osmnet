@@ -101,14 +101,40 @@ def test_parse_status_old_layout():
 
 def test_parse_status_slot_available_after():
     text = STATUS_SLOT_TEMPLATE.format(late=_utc_in(120), early=_utc_in(30))
+    assert load._parse_overpass_status(text) == ('slot', 30)
+
+
+def test_parse_status_slot_ignores_local_clock():
+    # timestamps an hour off, as with a skewed local clock: the server's
+    # "in N seconds" still gives the wait
+    text = STATUS_SLOT_TEMPLATE.format(late=_utc_in(3720),
+                                       early=_utc_in(3630))
+    assert load._parse_overpass_status(text) == ('slot', 30)
+
+
+def test_parse_status_slot_timestamp_only():
+    text = ('Rate limit: 2\n'
+            'Slot available after: {}.\n'
+            'Slot available after: {}.\n').format(_utc_in(120), _utc_in(30))
     kind, wait = load._parse_overpass_status(text)
     assert kind == 'slot'
     assert 25 <= wait <= 31
 
 
 def test_parse_status_slot_in_past():
-    text = STATUS_SLOT_TEMPLATE.format(late=_utc_in(-5), early=_utc_in(-10))
+    text = ('Rate limit: 2\n'
+            'Slot available after: {}, in 0 seconds.\n'
+            'Slot available after: {}.\n').format(_utc_in(-5), _utc_in(-10))
     assert load._parse_overpass_status(text) == ('slot', 1)
+
+
+def test_parse_status_zero_slots_available():
+    text = ('Rate limit: 2\n'
+            '0 slots available now.\n'
+            'Slot available after: {}, in 30 seconds.\n'
+            'Currently running queries (pid, space limit, time limit, '
+            'start time):\n').format(_utc_in(30))
+    assert load._parse_overpass_status(text) == ('slot', 30)
 
 
 def test_parse_status_currently_running():
@@ -138,7 +164,7 @@ def test_get_pause_duration_slot(monkeypatch, no_sleep):
     text = STATUS_SLOT_TEMPLATE.format(late=_utc_in(120), early=_utc_in(30))
     monkeypatch.setattr(load.requests, 'get',
                         lambda url, **kw: FakeResponse(text=text))
-    assert 25 <= load.get_pause_duration() <= 31
+    assert load.get_pause_duration() == 30
 
 
 def test_get_pause_duration_406_falls_back(monkeypatch, no_sleep):
@@ -156,7 +182,7 @@ def test_get_pause_duration_busy_then_free(monkeypatch, no_sleep):
     assert no_sleep == [5, 5]
 
 
-def test_get_pause_duration_busy_is_bounded(monkeypatch, no_sleep):
+def test_get_pause_duration_busy_is_bounded(monkeypatch, no_sleep, caplog):
     calls = []
 
     def fake_get(url, **kwargs):
@@ -164,10 +190,14 @@ def test_get_pause_duration_busy_is_bounded(monkeypatch, no_sleep):
         return FakeResponse(text=STATUS_BUSY)
 
     monkeypatch.setattr(load.requests, 'get', fake_get)
-    assert load.get_pause_duration(recursive_delay=5, default_duration=10,
-                                   max_retries=3) == 10
+    with caplog.at_level('WARNING', logger='osmnet'):
+        assert load.get_pause_duration(recursive_delay=5,
+                                       default_duration=10,
+                                       max_retries=3) == 10
     assert len(calls) == 4
     assert no_sleep == [5, 5, 5]
+    assert any('after 4 status checks' in r.getMessage()
+               for r in caplog.records)
 
 
 def test_overpass_request_sends_user_agent(monkeypatch, no_sleep):
@@ -256,8 +286,7 @@ def test_overpass_request_uses_longer_status_wait(monkeypatch, no_sleep):
     monkeypatch.setattr(load.requests, 'get',
                         lambda url, **kw: FakeResponse(text=text))
     assert load.overpass_request(data={'data': 'q'}) == {'elements': [1]}
-    assert len(no_sleep) == 1
-    assert 25 <= no_sleep[0] <= 31
+    assert no_sleep == [30]
 
 
 def test_overpass_request_default_max_retries(monkeypatch, no_sleep):
@@ -287,3 +316,35 @@ def test_overpass_request_other_status_raises(monkeypatch, no_sleep):
     with pytest.raises(Exception, match='Server returned no JSON data'):
         load.overpass_request(data={'data': 'q'})
     assert len(calls) == 1
+
+
+def test_overpass_request_negative_max_retries():
+    with pytest.raises(ValueError, match='max_retries'):
+        load.overpass_request(data={'data': 'q'}, max_retries=-1)
+
+
+def test_osm_net_download_passes_max_retries(monkeypatch):
+    calls = []
+
+    def fake_overpass_request(data, **kwargs):
+        calls.append(kwargs)
+        return {'elements': [{'type': 'node', 'id': 1}]}
+
+    monkeypatch.setattr(load, 'overpass_request', fake_overpass_request)
+    load.osm_net_download(lat_min=37.8, lng_min=-122.26, lat_max=37.81,
+                          lng_max=-122.27, max_retries=9)
+    assert calls and all(kw['max_retries'] == 9 for kw in calls)
+
+
+def test_network_from_bbox_passes_max_retries(monkeypatch):
+    calls = []
+
+    def fake_osm_net_download(**kwargs):
+        calls.append(kwargs)
+        raise RuntimeError('stop here')
+
+    monkeypatch.setattr(load, 'osm_net_download', fake_osm_net_download)
+    with pytest.raises(RuntimeError, match='stop here'):
+        load.network_from_bbox(bbox=(-122.27, 37.8, -122.26, 37.81),
+                               max_retries=9)
+    assert calls[0]['max_retries'] == 9

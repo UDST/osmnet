@@ -18,7 +18,6 @@ import logging as lg
 import numpy as np
 from shapely.geometry import LineString, Polygon, MultiPolygon
 from shapely.ops import unary_union
-from dateutil import parser as date_parser
 import datetime as dt
 import geopandas as gpd
 
@@ -90,7 +89,7 @@ def osm_filter(network_type):
 def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                      network_type='walk', timeout=180, memory=None,
                      max_query_area_size=50*1000*50*1000,
-                     custom_osm_filter=None):
+                     custom_osm_filter=None, max_retries=5):
     """
     Download OSM ways and nodes within a bounding box from the Overpass API.
 
@@ -123,6 +122,12 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         follow Overpass API schema. For
         example to request highway ways that are service roads use:
         '["highway"="service"]'
+    max_retries : int, optional
+        how many times to re-try each Overpass request after a 429 or 504
+        response before raising OverpassRetryError. Retries wait at least
+        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
+        default of 5 gives up after about two and a half minutes. Raise it
+        for large bounding boxes that need many requests
 
     Returns
     -------
@@ -182,7 +187,8 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                                           filters=request_filter,
                                           timeout=timeout, maxsize=maxsize)
         response_json = overpass_request(data={'data': query_str},
-                                         timeout=timeout)
+                                         timeout=timeout,
+                                         max_retries=max_retries)
 
         response_jsons_list.append(response_json)
 
@@ -249,7 +255,11 @@ def overpass_request(data, pause_duration=None, timeout=180,
     response_json : dict
     """
 
+    if max_retries < 0:
+        raise ValueError('max_retries must be 0 or greater')
+
     url = OVERPASS_URL
+    domain = re.findall(r'(?s)//(.*?)/', url)[0]
     headers = {
         "User-Agent": USER_AGENT
     }
@@ -267,9 +277,8 @@ def overpass_request(data, pause_duration=None, timeout=180,
             timeout=timeout,
         )
 
-        # get the response size and the domain, log result
+        # get the response size, log result
         size_kb = len(response.content) / 1000.
-        domain = re.findall(r'(?s)//(.*?)/', url)[0]
         log('Downloaded {:,.1f}KB from {} in {:,.2f} seconds'
             .format(size_kb, domain, time.time()-start_time))
 
@@ -338,18 +347,26 @@ def _parse_overpass_status(text):
     # "2 slots available now."
     for line in lines:
         match = re.match(r'^(\d+)\s+slots?\s+available', line)
-        if match:
+        if match and int(match.group(1)) > 0:
             return 'available', int(match.group(1))
 
     # "Slot available after: 2026-10-04T12:20:01Z, in 107 seconds."
-    # there is one such line per busy slot; use the earliest
+    # there is one such line per busy slot; use the earliest. prefer the
+    # server's own count of seconds, which does not depend on the local
+    # clock, and fall back on the timestamp
     waits = []
     for line in lines:
         if not line.startswith('Slot'):
             continue
+        match = re.search(r'in (-?\d+) seconds?', line)
+        if match:
+            waits.append(int(match.group(1)))
+            continue
         match = re.search(r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)', line)
         if match:
-            utc_time = date_parser.parse(match.group(1))
+            utc_time = dt.datetime.strptime(
+                match.group(1), '%Y-%m-%dT%H:%M:%SZ').replace(
+                tzinfo=dt.timezone.utc)
             now = dt.datetime.now(dt.timezone.utc)
             waits.append(math.ceil((utc_time - now).total_seconds()))
     if waits:
@@ -416,10 +433,13 @@ def get_pause_duration(recursive_delay=5, default_duration=10,
         # the server is currently running queries, so check back in
         # recursive_delay seconds
         if attempt < max_retries:
+            log('Overpass server is running queries; checking its status '
+                'again in {} seconds'.format(recursive_delay))
             time.sleep(recursive_delay)
 
     log('Overpass server still busy after {} status checks; pausing {} '
-        'seconds'.format(max_retries, default_duration), level=lg.WARNING)
+        'seconds'.format(max_retries + 1, default_duration),
+        level=lg.WARNING)
     return default_duration
 
 
@@ -700,7 +720,7 @@ def parse_network_osm_query(data):
 def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
                  timeout=180, memory=None,
                  max_query_area_size=50*1000*50*1000,
-                 custom_osm_filter=None):
+                 custom_osm_filter=None, max_retries=5):
     """
     Get DataFrames of OSM data in a bounding box.
 
@@ -733,6 +753,12 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
         follow Overpass API schema. For
         example to request highway ways that are service roads use:
         '["highway"="service"]'
+    max_retries : int, optional
+        how many times to re-try each Overpass request after a 429 or 504
+        response before raising OverpassRetryError. Retries wait at least
+        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
+        default of 5 gives up after about two and a half minutes. Raise it
+        for large bounding boxes that need many requests
 
     Returns
     -------
@@ -744,7 +770,8 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
                          lng_max=lng_max, network_type=network_type,
                          timeout=timeout, memory=memory,
                          max_query_area_size=max_query_area_size,
-                         custom_osm_filter=custom_osm_filter))
+                         custom_osm_filter=custom_osm_filter,
+                         max_retries=max_retries))
 
 
 def intersection_nodes(waynodes):
@@ -857,7 +884,7 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                       bbox=None, network_type='walk', two_way=True,
                       timeout=180, memory=None,
                       max_query_area_size=50*1000*50*1000,
-                      custom_osm_filter=None):
+                      custom_osm_filter=None, max_retries=5):
     """
     Make a graph network from a bounding lat/lon box composed of nodes and
     edges for use in Pandana street network accessibility calculations.
@@ -909,6 +936,12 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         follow Overpass API schema. For
         example to request highway ways that are service roads use:
         '["highway"="service"]'
+    max_retries : int, optional
+        how many times to re-try each Overpass request after a 429 or 504
+        response before raising OverpassRetryError. Retries wait at least
+        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
+        default of 5 gives up after about two and a half minutes. Raise it
+        for large bounding boxes that need many requests
 
     Returns
     -------
@@ -940,7 +973,7 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         lat_min=lat_min, lng_min=lng_min, lat_max=lat_max, lng_max=lng_max,
         network_type=network_type, timeout=timeout,
         memory=memory, max_query_area_size=max_query_area_size,
-        custom_osm_filter=custom_osm_filter)
+        custom_osm_filter=custom_osm_filter, max_retries=max_retries)
     log('Returning OSM data with {:,} nodes and {:,} ways...'
         .format(len(nodes), len(ways)))
 
