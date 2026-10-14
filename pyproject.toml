@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osmnet"
+dynamic = ["version"]
+description = "Tools for the extraction of OpenStreetMap street network data for use in Pandana accessibility analyses"
+readme = "README.rst"
+requires-python = ">=3.10"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE.txt"]
+authors = [
+    {name = "UrbanSim Inc.", email = "info@urbansim.com"},
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "geopandas>=0.11",
+    "numpy>=1.21",
+    "pandas>=1.5,<4",
+    "requests>=2.28",
+    "shapely>=1.8",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8",
+    "pytest-cov>=5",
+]
+docs = [
+    "numpydoc>=1.6",
+    "sphinx>=7",
+    "sphinx-rtd-theme>=2",
+]
+dev = [
+    "build>=1.2",
+    "pycodestyle>=2.11",
+    "twine>=6",
+]
+
+[project.urls]
+Documentation = "https://udst.github.io/osmnet/"
+Repository = "https://github.com/UDST/osmnet"
+Issues = "https://github.com/UDST/osmnet/issues"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = {attr = "osmnet.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["osmnet", "osmnet.*"]
+exclude = ["*.tests", "*.tests.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["osmnet/tests"]
+
+[tool.coverage.run]
+source = ["osmnet"]
+
+[tool.coverage.report]
+show_missing = true
+omit = ["*/tests/*", "*/__init__.py"]
