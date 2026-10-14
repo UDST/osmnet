@@ -1,4 +1,7 @@
+import copy
+import json
 import os
+import re
 
 import numpy.testing as npt
 import pytest
@@ -8,11 +11,80 @@ from pyproj.crs.crs import CRS
 
 import osmnet.load as load
 
-# tests that query the live Overpass API; set OSMNET_SKIP_NETWORK_TESTS=1 to
-# skip them (as CI does)
-requires_network = pytest.mark.skipif(
-    os.environ.get('OSMNET_SKIP_NETWORK_TESTS') == '1',
-    reason='queries the live Overpass API')
+# The Overpass responses for the queries in this module are saved in
+# data/overpass_responses.json and replayed, so the tests do not depend on
+# the live API or on later edits to OSM. To refresh them, run this whole
+# module with OSMNET_RECORD_OVERPASS=1, which queries the live API and
+# replaces the file with the responses to the queries the run makes, then
+# update the expected values below.
+RESPONSES_FILE = os.path.join(os.path.dirname(__file__), 'data',
+                              'overpass_responses.json')
+RECORD = os.environ.get('OSMNET_RECORD_OVERPASS') == '1'
+
+# coordinates in a query are compared within a tolerance, so that small
+# differences in the projection round trip between library versions still
+# find the saved response
+_COORD = re.compile(r'-?\d+\.\d+')
+_COORD_TOLERANCE = 1e-6
+
+
+def _same_query(a, b):
+    if _COORD.sub('#', a) != _COORD.sub('#', b):
+        return False
+    return all(abs(float(x) - float(y)) <= _COORD_TOLERANCE
+               for x, y in zip(_COORD.findall(a), _COORD.findall(b)))
+
+
+def _find_saved(responses, query):
+    for key in responses:
+        if _same_query(key, query):
+            return key
+    return None
+
+
+@pytest.fixture(scope='module', autouse=True)
+def saved_overpass_responses():
+    if RECORD:
+        # query each request once and keep only the ones this run makes
+        responses = {}
+    else:
+        with open(RESPONSES_FILE) as f:
+            responses = json.load(f)
+    live_request = load.overpass_request
+
+    def replay_request(data, **kwargs):
+        key = _find_saved(responses, data['data'])
+        if key is None and RECORD:
+            key = data['data']
+            responses[key] = live_request(data, **kwargs)
+        if key is None:
+            raise KeyError('No saved Overpass response for {!r}. Run the '
+                           'tests with OSMNET_RECORD_OVERPASS=1 to save one.'
+                           .format(data['data']))
+        # a copy, so that a test that changes the response cannot affect
+        # later tests
+        return copy.deepcopy(responses[key])
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(load, 'overpass_request', replay_request)
+        yield
+
+    if RECORD:
+        os.makedirs(os.path.dirname(RESPONSES_FILE), exist_ok=True)
+        with open(RESPONSES_FILE, 'w') as f:
+            json.dump(responses, f, indent=1, sort_keys=True)
+            f.write('\n')
+
+
+def test_same_query_tolerance():
+    query = '(way["highway"](37.86593035,-122.25880039);>;);out;'
+    # differs in the 8th decimal across a 6-decimal rounding boundary
+    assert _same_query(query,
+                       '(way["highway"](37.86593049,-122.25880039);>;);out;')
+    assert not _same_query(
+        query, '(way["highway"](37.86603035,-122.25880039);>;);out;')
+    assert not _same_query(
+        query, '(way["footway"](37.86593035,-122.25880039);>;);out;')
 
 
 @pytest.fixture(scope='module')
@@ -92,12 +164,11 @@ def dataframes2(query_data2):
     return load.parse_network_osm_query(query_data2)
 
 
-@requires_network
 def test_make_osm_query(query_data1):
     assert isinstance(query_data1, dict)
-    assert len(query_data1['elements']) == 27
+    assert len(query_data1['elements']) == 22
     assert len([e for e in query_data1['elements']
-                if e['type'] == 'node']) == 23
+                if e['type'] == 'node']) == 18
     assert len([e for e in query_data1['elements']
                 if e['type'] == 'way']) == 4
 
@@ -162,16 +233,14 @@ def test_process_way():
     assert waynodes == expected_waynodes
 
 
-@requires_network
 def test_parse_network_osm_query(dataframes1):
     nodes, ways, waynodes = dataframes1
 
-    assert len(nodes) == 23
+    assert len(nodes) == 18
     assert len(ways) == 4
     assert len(waynodes.index.unique()) == 4
 
 
-@requires_network
 def test_parse_network_osm_query_raises():
     query_template = '[out:json][timeout:{timeout}]{maxsize};(way["highway"]' \
                      '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},' \
@@ -185,27 +254,6 @@ def test_parse_network_osm_query_raises():
         load.parse_network_osm_query(data)
 
 
-@requires_network
-def test_overpass_request_raises(bbox5):
-    lat_min, lng_max, lat_max, lng_min = bbox5
-    query_template = '[out:json][timeout:{timeout}]{maxsize};(way["highway"]' \
-                     '{filters}({lat_min:.8f},{lng_max:.8f},{lat_max:.8f},' \
-                     '{lng_min:.8f});>;);out;'
-    query_str = query_template.format(lat_max=lat_max, lat_min=lat_min,
-                                      lng_min=lng_min, lng_max=lng_max,
-                                      filters=load.osm_filter('walk'),
-                                      timeout=0, maxsize='')
-    with pytest.raises(Exception):
-        load.overpass_request(data={'data': query_str})
-
-
-@requires_network
-def test_get_pause_duration():
-    error_pause_duration = load.get_pause_duration(recursive_delay=5,
-                                                   default_duration=10)
-    assert error_pause_duration >= 0
-
-
 def test_quadrat_cut_geometry(simple_polygon):
     multipolygon = load.quadrat_cut_geometry(geometry=simple_polygon,
                                              quadrat_width=0.5,
@@ -216,7 +264,6 @@ def test_quadrat_cut_geometry(simple_polygon):
     assert len(multipolygon.geoms) == 4
 
 
-@requires_network
 def test_ways_in_bbox(bbox1, dataframes1):
     lat_min, lng_max, lat_max, lng_min = bbox1
     nodes, ways, waynodes = load.ways_in_bbox(lat_min=lat_min, lng_min=lng_min,
@@ -224,12 +271,11 @@ def test_ways_in_bbox(bbox1, dataframes1):
                                               network_type='walk')
     exp_nodes, exp_ways, exp_waynodes = dataframes1
 
-    nodes.equals(exp_nodes)
-    ways.equals(exp_ways)
-    waynodes.equals(exp_waynodes)
+    assert nodes.equals(exp_nodes)
+    assert ways.equals(exp_ways)
+    assert waynodes.equals(exp_waynodes)
 
 
-@requires_network
 @pytest.mark.parametrize(
     'network_type, noset',
     [('walk', {'motorway', 'motorway_link'}),
@@ -244,7 +290,6 @@ def test_ways_in_bbox_walk_network(bbox3, network_type, noset):
         assert way['highway'] not in noset
 
 
-@requires_network
 def test_intersection_nodes1(dataframes1):
     _, _, waynodes = dataframes1
     intersections = load.intersection_nodes(waynodes)
@@ -252,52 +297,50 @@ def test_intersection_nodes1(dataframes1):
     assert intersections == {53041093}
 
 
-@requires_network
 def test_intersection_nodes2(dataframes2):
     _, _, waynodes = dataframes2
     intersections = load.intersection_nodes(waynodes)
 
     assert intersections == {
-        53063555, 9515373382, 53099275, 9515406927, 4279441429, 4279441430,
-        4279441432}
+        53063555, 53099275, 4279441428, 4279441429, 4279441430, 4279441432,
+        9515373382, 9515373383, 12091440855, 12091440859, 12091440860}
 
 
-@requires_network
 def test_node_pairs_two_way(dataframes2):
     nodes, ways, waynodes = dataframes2
     pairs = load.node_pairs(nodes, ways, waynodes)
 
-    assert len(pairs) == 6
+    assert len(pairs) == 13
 
+    # the Telegraph Avenue segment from 53063555 to 53099275 (100.575284 m)
+    # is split by the crosswalk node 4279441428
     fn = 53063555
-    tn = 53099275
+    tn = 4279441428
 
     pair = pairs.loc[(fn, tn)]
 
     assert pair.from_id == fn
     assert pair.to_id == tn
-    npt.assert_allclose(pair.distance, 100.575284)
+    npt.assert_allclose(pair.distance, 90.509406)
 
 
-@requires_network
 def test_node_pairs_one_way(dataframes2):
     nodes, ways, waynodes = dataframes2
     pairs = load.node_pairs(nodes, ways, waynodes, two_way=False)
 
-    assert len(pairs) == 12
+    assert len(pairs) == 26
 
     n1 = 53063555
-    n2 = 53099275
+    n2 = 4279441428
 
     for p1, p2 in [(n1, n2), (n2, n1)]:
         pair = pairs.loc[(p1, p2)]
 
         assert pair.from_id == p1
         assert pair.to_id == p2
-        npt.assert_allclose(pair.distance, 100.575284)
+        npt.assert_allclose(pair.distance, 90.509406)
 
 
-@requires_network
 def test_column_names(bbox4):
 
     nodes, edges = load.network_from_bbox(
@@ -313,13 +356,12 @@ def test_column_names(bbox4):
         assert col in edges.columns
 
 
-@requires_network
 def test_custom_query_pass(bbox5):
     nodes, edges = load.network_from_bbox(
         bbox=bbox5, custom_osm_filter='["highway"="service"]'
     )
-    assert len(nodes) == 25
-    assert len(edges) == 33
+    assert len(nodes) == 13
+    assert len(edges) == 15
     assert edges['highway'].unique() == 'service'
 
 

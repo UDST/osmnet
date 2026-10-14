@@ -1,7 +1,8 @@
 OSMnet
 ======
 
-|Build Status|  |Coverage Status|  |Appveyor Build Status|
+.. image:: https://github.com/UDST/osmnet/actions/workflows/ci.yml/badge.svg
+  :target: https://github.com/UDST/osmnet/actions/workflows/ci.yml
 
 Tools for the extraction of OpenStreetMap (OSM) street network data.
 Intended to be used in tandem with Pandana and UrbanAccess libraries to
@@ -90,7 +91,7 @@ Development Installation
 To install OSMnet from source code, follow these steps:
 
 1. Git clone the `OSMnet repo`_
-2. in the cloned directory run: ``python setup.py develop``
+2. in the cloned directory run: ``pip install -e .``
 
 To update to the latest version:
 
@@ -112,12 +113,3 @@ Related UDST libraries
 .. _OSMnet repo: https://github.com/udst/osmnet
 .. _here: https://udst.github.io/osmnet/index.html
 .. _UrbanAccess: https://github.com/UDST/urbanaccess
-
-.. |Build Status| image:: https://travis-ci.org/UDST/osmnet.svg?branch=master
-   :target: https://travis-ci.org/UDST/osmnet
-
-.. |Appveyor Build Status| image:: https://ci.appveyor.com/api/projects/status/acuoygyy3l0lqnpv/branch/master?svg=true
-   :target: https://ci.appveyor.com/project/pksohn/osmnet
-
-.. |Coverage Status| image:: https://coveralls.io/repos/github/UDST/osmnet/badge.svg?branch=master
-   :target: https://coveralls.io/github/UDST/osmnet?branch=master

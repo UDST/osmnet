@@ -10,18 +10,16 @@ The files in `docs/source`, along with docstrings in the source code, determine 
 
 ### Previewing changes locally
 
-Install the copy of OSMNet that the documentation is meant to reflect. Install the documentation tools.
+Install the copy of OSMnet that the documentation is meant to reflect, along with the documentation tools.
 
 ```
-pip install . 
-pip install sphinx sphinx_rtd_theme numpydoc
+pip install ".[docs]"
 ```
 
-Build the documentation. There should be status messages and warnings, but no errors.
+Build the documentation from the repository root. Warnings are treated as errors, as in CI.
 
 ```
-cd docs
-sphinx-build -b html source build
+python -m sphinx -E -W --keep-going -b html docs/source docs/build
 ```
 
 The HTML files will show up in `docs/build/`. 

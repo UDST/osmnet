@@ -10,7 +10,11 @@ Unreleased
 * the wait for the next free slot is read from the status page's "in N seconds" rather than computed from its timestamp and the local clock; ``python-dateutil`` is no longer imported
 * the interpreter request goes to ``overpass-api.de``, the same host as the status request
 * server remarks in an Overpass response are logged as warnings, as intended
-* adds a GitHub Actions workflow running the offline unit tests on Python 3.10-3.13
+* requires Python 3.10 or later; tested on Python 3.10-3.14 with NumPy 2, pandas 3 and GeoPandas 1.x, and with the new minimum versions NumPy 1.21, pandas 1.5, GeoPandas 0.11, Shapely 1.8 and requests 2.28
+* packaging moves from ``setup.py`` to ``pyproject.toml``, with ``test``, ``docs`` and ``dev`` extras; the license is declared as ``AGPL-3.0-only``
+* no longer uses GeoPandas' deprecated ``GeoSeries.unary_union``
+* the tests replay saved Overpass API responses, so they no longer depend on the live API or on later edits to OpenStreetMap; ``OSMNET_RECORD_OVERPASS=1`` refreshes the saved responses, and the live API tests in ``test_live.py`` run with ``OSMNET_LIVE_TESTS=1``
+* CI on GitHub Actions: minimum dependencies on Python 3.10, latest dependencies on Python 3.14 (Linux, macOS, Windows), code style, package build and install, and a strict documentation build; Travis and AppVeyor configurations removed
 
 v0.1.7
 ======

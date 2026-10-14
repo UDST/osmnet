@@ -606,7 +606,9 @@ def project_gdf(gdf, to_crs=None, to_latlong=False):
                 "Geometry must be unprojected to calculate UTM zone")
 
         # calculate longitude of centroid of union of all geometries in gdf
-        avg_lng = gdf["geometry"].unary_union.centroid.x
+        # (shapely's unary_union rather than GeoSeries.unary_union, which
+        # GeoPandas 1.0 deprecated in favor of union_all)
+        avg_lng = unary_union(list(gdf["geometry"])).centroid.x
 
         # calculate UTM zone from avg longitude to define CRS to project to
         utm_zone = int(math.floor((avg_lng + 180) / 6.0) + 1)
