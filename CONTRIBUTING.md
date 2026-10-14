@@ -67,7 +67,7 @@ OSMnet's status is Deprecated / Migration: it supports existing Pandana and Urba
 
 - Open a pull request to the main branch, and merge it once the checks pass
 
-- Publish the release on GitHub: create a tag on the merge commit named with a `v` prefix (e.g. `v0.2` for version `0.2`), and use the changelog text as the release notes
+- Publish the release on GitHub: create a tag on the merge commit named with a `v` prefix (e.g. `v0.2` for version `0.2`), and use the changelog text as the release notes. Publishing the release starts the `Publish` workflow described below
 
 - For anything more than a trivial release, do a dry run first with a release candidate: set the version to e.g. `0.2rc1`, tag it `v0.2rc1`, and mark the GitHub release as a pre-release. Pip ignores pre-releases unless asked for them (`pip install --pre osmnet==0.2rc1`), and the Conda Forge bots ignore them too, so this is a safe way to test the whole process. There's no need to delete the release candidate from PyPI afterward. Then repeat with the final version number
 
@@ -76,13 +76,17 @@ OSMnet's status is Deprecated / Migration: it supports existing Pandana and Urba
 
 ## Distributing a release on PyPI (for pip installation):
 
-- Register an account at https://pypi.org with two-factor authentication enabled, ask one of the current maintainers to add you to the project, and create an API token scoped to the OSMnet project
+- Publishing is automated by the `Publish` GitHub Actions workflow (`.github/workflows/publish.yml`), which runs when a release is published on GitHub. It builds the source distribution and wheel, checks them with `twine check --strict`, installs the wheel and runs the test suite against it, confirms that the package version matches the release tag (and that pre-release versions go with pre-release GitHub releases), and then uploads the files to PyPI using [Trusted Publishing](https://docs.pypi.org/trusted-publishers/), so no PyPI credentials are stored on GitHub
 
-- Check out the tagged release, `pip install build twine`, delete any old files in `dist/`, and run `python -m build` and `twine check --strict dist/*`
+- The upload step runs in the repository's `pypi` deployment environment, which requires approval from a maintainer: once the build job succeeds, the workflow pauses until a reviewer approves the deployment from the workflow run page. Merging to `main` never publishes anything
 
-- Run `twine upload dist/*`, entering `__token__` as the username and the token as the password
+- The workflow can also be run by hand from the Actions tab (`workflow_dispatch`) to build and test the distributions without publishing them
 
 - Check https://pypi.org/project/osmnet/ for the new version, and try `pip install osmnet` in a fresh environment
+
+- One-time setup, in case it needs to be repeated: a PyPI owner of the project registers the trusted publisher at https://pypi.org/manage/project/osmnet/settings/publishing/ with owner `UDST`, repository `osmnet`, workflow `publish.yml`, and environment `pypi`; and a repository admin creates the `pypi` environment at https://github.com/UDST/osmnet/settings/environments with required reviewers
+
+- Manual fallback, if the workflow can't be used: register an account at https://pypi.org with two-factor authentication enabled, ask one of the current maintainers to add you to the project, and create an API token scoped to the OSMnet project. Then check out the tagged release, `pip install build twine`, delete any old files in `dist/`, and run `python -m build`, `twine check --strict dist/*`, and `twine upload dist/*`, entering `__token__` as the username and the token as the password
 
 
 ## Distributing a release on Conda Forge (for conda installation):
