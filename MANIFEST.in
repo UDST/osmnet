@@ -1,4 +1,6 @@
-# files to include in the source distribution on pypi (setup and README are included automatically)
-
 include CHANGELOG.rst
+include CONTRIBUTING.md
 include LICENSE.txt
+include README.rst
+include requirements-min.txt
+recursive-include osmnet/tests *.py *.json

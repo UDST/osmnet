@@ -1,12 +1,1 @@
-# Additional requirements for development and testing
-
-# testing
-coveralls
-pycodestyle
-pytest
-pytest-cov < 2.10
-
-# building documentation
-numpydoc
-sphinx
-sphinx_rtd_theme
+-e .[dev,docs,test]
