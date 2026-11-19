@@ -27,7 +27,7 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
 project = u'OSMnet'
-copyright = u'2023, UrbanSim Inc.'
+copyright = u'2026, UrbanSim Inc.'
 author = u'UrbanSim Inc.'
 # The short X.Y version and the full version, read from the installed package.
 import osmnet
