@@ -31,16 +31,21 @@ USER_AGENT = 'osmnet/{} (+https://github.com/UDST/osmnet)'.format(
 OVERPASS_URL = 'https://overpass-api.de/api/interpreter'
 OVERPASS_STATUS_URL = 'https://overpass-api.de/api/status'
 
-# minimum pause in seconds before re-trying after a 429 or 504; doubles with
-# each retry up to the maximum
+# status codes the Overpass API (or the proxy in front of it) returns when it
+# is overloaded or rate limiting: 429 = 'too many requests', 502 = 'bad
+# gateway', 503 = 'service unavailable', 504 = 'gateway timeout'. requests
+# that get one of these are re-tried
+RETRY_STATUS_CODES = (429, 502, 503, 504)
+# minimum pause in seconds before re-trying; doubles with each retry up to
+# the maximum
 RETRY_MIN_PAUSE = 5
 RETRY_MAX_PAUSE = 60
 
 
 class OverpassRetryError(Exception):
     """
-    Raised when the Overpass API keeps returning 429/504 after the
-    maximum number of retries.
+    Raised when the Overpass API keeps returning one of the
+    RETRY_STATUS_CODES after the maximum number of retries.
     """
     pass
 
@@ -123,11 +128,11 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         example to request highway ways that are service roads use:
         '["highway"="service"]'
     max_retries : int, optional
-        how many times to re-try each Overpass request after a 429 or 504
-        response before raising OverpassRetryError. Retries wait at least
-        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
-        default of 5 gives up after about two and a half minutes. Raise it
-        for large bounding boxes that need many requests
+        how many times to re-try each Overpass request after a 429, 502,
+        503 or 504 response before raising OverpassRetryError. Retries wait
+        at least RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so
+        the default of 5 gives up after about two and a half minutes. Raise
+        it for large bounding boxes that need many requests
 
     Returns
     -------
@@ -218,7 +223,7 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         ways = response_jsons_df[response_jsons_df['type'] == 'way']
         ways = ways[~ways.index.duplicated(keep='first')]
         response_jsons_df = pd.concat([nodes, ways], axis=0)
-        response_jsons_df.reset_index(inplace=True)
+        response_jsons_df = response_jsons_df.reset_index()
         response_jsons = response_jsons_df.to_dict(orient='records')
         if record_count - len(response_jsons) > 0:
             log('{:,} duplicate records removed. Took {:,.2f} seconds'.format(
@@ -243,12 +248,12 @@ def overpass_request(data, pause_duration=None, timeout=180,
         the timeout interval for the requests library
     error_pause_duration : int
         how long to pause in seconds before re-trying requests if error. if
-        None, the pause is the wait reported by the Overpass API status
-        endpoint, but at least RETRY_MIN_PAUSE seconds, doubling with each
-        retry up to RETRY_MAX_PAUSE
+        None, the pause is RETRY_MIN_PAUSE seconds, doubling with each retry
+        up to RETRY_MAX_PAUSE. after a 429 it is the wait reported by the
+        Overpass API status endpoint, if that is longer
     max_retries : int
-        how many times to re-try the request after a 429 or 504 response
-        before raising OverpassRetryError
+        how many times to re-try the request after a 429, 502, 503 or 504
+        response before raising OverpassRetryError
 
     Returns
     -------
@@ -264,9 +269,8 @@ def overpass_request(data, pause_duration=None, timeout=180,
         "User-Agent": USER_AGENT
     }
 
-    # 429 = 'too many requests' and 504 = 'gateway timeout' from server
-    # overload. handle these errors by re-trying the request, at most
-    # max_retries times
+    # the RETRY_STATUS_CODES mean the server is overloaded or rate limiting.
+    # handle these errors by re-trying the request, at most max_retries times
     for attempt in range(max_retries + 1):
         start_time = time.time()
         log('Posting to {} with timeout={}, "{}"'.format(url, timeout, data))
@@ -291,7 +295,7 @@ def overpass_request(data, pause_duration=None, timeout=180,
 
         except Exception:
             # else, this was an unhandled status_code, throw an exception
-            if response.status_code not in [429, 504]:
+            if response.status_code not in RETRY_STATUS_CODES:
                 log('Server at {} returned status code {} and no JSON data'
                     .format(domain, response.status_code), level=lg.ERROR)
                 raise Exception('Server returned no JSON data.\n{} {}\n{}'
@@ -304,10 +308,13 @@ def overpass_request(data, pause_duration=None, timeout=180,
         # pause for error_pause_duration seconds before re-trying request
         pause = error_pause_duration
         if pause is None:
-            # the status endpoint reports free slots even while the server
-            # is overloaded and returning 504s, so back off regardless
-            min_pause = min(RETRY_MIN_PAUSE * 2 ** attempt, RETRY_MAX_PAUSE)
-            pause = max(get_pause_duration(), min_pause)
+            pause = min(RETRY_MIN_PAUSE * 2 ** attempt, RETRY_MAX_PAUSE)
+            if response.status_code == 429:
+                # the server is rate limiting this client, and its status
+                # endpoint says when the next slot is free. the other codes
+                # mean the server is overloaded: the status endpoint then
+                # reports free slots or fails the same way, so don't ask it
+                pause = max(get_pause_duration(), pause)
         log('Server at {} returned status code {} and no JSON data. '
             'Re-trying request in {:.2f} seconds (retry {} of {}).'
             .format(domain, response.status_code, pause, attempt + 1,
@@ -317,9 +324,13 @@ def overpass_request(data, pause_duration=None, timeout=180,
 
     log('Server at {} returned status code {} after {} retries; giving up'
         .format(domain, response.status_code, max_retries), level=lg.ERROR)
+    # include the last response, truncated, since it can say why the server
+    # is refusing (e.g. a message from a proxy or a block notice)
     raise OverpassRetryError(
         'Overpass API at {} still returned status code {} after {} '
-        'retries.'.format(domain, response.status_code, max_retries))
+        'retries.\n{} {}\n{}'.format(domain, response.status_code,
+                                     max_retries, response, response.reason,
+                                     response.text[:1000]))
 
 
 def _parse_overpass_status(text):
@@ -756,11 +767,11 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
         example to request highway ways that are service roads use:
         '["highway"="service"]'
     max_retries : int, optional
-        how many times to re-try each Overpass request after a 429 or 504
-        response before raising OverpassRetryError. Retries wait at least
-        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
-        default of 5 gives up after about two and a half minutes. Raise it
-        for large bounding boxes that need many requests
+        how many times to re-try each Overpass request after a 429, 502,
+        503 or 504 response before raising OverpassRetryError. Retries wait
+        at least RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so
+        the default of 5 gives up after about two and a half minutes. Raise
+        it for large bounding boxes that need many requests
 
     Returns
     -------
@@ -939,11 +950,11 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         example to request highway ways that are service roads use:
         '["highway"="service"]'
     max_retries : int, optional
-        how many times to re-try each Overpass request after a 429 or 504
-        response before raising OverpassRetryError. Retries wait at least
-        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
-        default of 5 gives up after about two and a half minutes. Raise it
-        for large bounding boxes that need many requests
+        how many times to re-try each Overpass request after a 429, 502,
+        503 or 504 response before raising OverpassRetryError. Retries wait
+        at least RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so
+        the default of 5 gives up after about two and a half minutes. Raise
+        it for large bounding boxes that need many requests
 
     Returns
     -------
@@ -986,9 +997,9 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                       .union(set(edgesfinal['to_id'].unique())))
     nodesfinal = nodes.loc[node_ids]
     nodesfinal = nodesfinal[['lon', 'lat']]
-    nodesfinal.rename(columns={'lon': 'x', 'lat': 'y'}, inplace=True)
+    nodesfinal = nodesfinal.rename(columns={'lon': 'x', 'lat': 'y'})
     nodesfinal['id'] = nodesfinal.index
-    edgesfinal.rename(columns={'from_id': 'from', 'to_id': 'to'}, inplace=True)
+    edgesfinal = edgesfinal.rename(columns={'from_id': 'from', 'to_id': 'to'})
     log('Returning processed graph with {:,} nodes and {:,} edges...'
         .format(len(nodesfinal), len(edgesfinal)))
     log('Completed OSM data download and Pandana node and edge table '

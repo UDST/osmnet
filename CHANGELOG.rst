@@ -4,17 +4,20 @@ Unreleased
 * sends a User-Agent header with Overpass API requests and uses https, fixing HTTP 406 errors (#33, thanks to Rhys Williams)
 * uses a descriptive User-Agent, ``osmnet/<version> (+https://github.com/UDST/osmnet)``, for both the interpreter and status requests
 * ``get_pause_duration()`` now queries the status page over https with the User-Agent and finds the slot line by content, so it tolerates the current page layout
-* retries are bounded: ``overpass_request()`` gets a ``max_retries`` argument (default 5) and raises ``OverpassRetryError`` when 429/504 responses persist; ``get_pause_duration()`` gets a ``max_retries`` argument and falls back to ``default_duration`` while the server stays busy
-* unless ``error_pause_duration`` is given, retries wait at least 5 seconds, doubling up to 60, even when the status page reports free slots, so 504s from an overloaded server are not retried back to back
+* retries are bounded: ``overpass_request()`` gets a ``max_retries`` argument (default 5) and raises ``OverpassRetryError`` when 429, 502, 503 or 504 responses persist; ``get_pause_duration()`` gets a ``max_retries`` argument and falls back to ``default_duration`` while the server stays busy
+* 502 and 503 responses are retried like 429 and 504; the public Overpass server now answers 502 when it is at capacity
+* the ``OverpassRetryError`` message includes the server's last response
+* unless ``error_pause_duration`` is given, retries wait at least 5 seconds, doubling up to 60, so requests to an overloaded server are not retried back to back; after a 429 the wait is the status page's wait for the next free slot if that is longer, and after a 502, 503 or 504 the status page is not queried
 * ``osm_net_download()``, ``ways_in_bbox()`` and ``network_from_bbox()`` accept ``max_retries`` and pass it on to each Overpass request, so large downloads can allow more retries
 * the wait for the next free slot is read from the status page's "in N seconds" rather than computed from its timestamp and the local clock; ``python-dateutil`` is no longer imported
 * the interpreter request goes to ``overpass-api.de``, the same host as the status request
 * server remarks in an Overpass response are logged as warnings, as intended
-* requires Python 3.10 or later; tested on Python 3.10-3.14 with NumPy 2, pandas 3 and GeoPandas 1.x, and with the new minimum versions NumPy 1.21, pandas 1.5, GeoPandas 0.11, Shapely 1.8 and requests 2.28
+* requires Python 3.10 or later; tested on Python 3.10-3.15 with NumPy 2, pandas 3 and GeoPandas 1.x, and with the new minimum versions NumPy 1.21, pandas 1.5, GeoPandas 0.11, Shapely 1.8 and requests 2.28
 * packaging moves from ``setup.py`` to ``pyproject.toml``, with ``test``, ``docs`` and ``dev`` extras; the license is declared as ``AGPL-3.0-only``
-* no longer uses GeoPandas' deprecated ``GeoSeries.unary_union``
+* no longer uses GeoPandas' deprecated ``GeoSeries.unary_union`` or the ``inplace`` keyword that pandas 3.1 deprecates
 * the tests replay saved Overpass API responses, so they no longer depend on the live API or on later edits to OpenStreetMap; ``OSMNET_RECORD_OVERPASS=1`` refreshes the saved responses, and the live API tests in ``test_live.py`` run with ``OSMNET_LIVE_TESTS=1``
-* CI on GitHub Actions: minimum dependencies on Python 3.10, latest dependencies on Python 3.14 (Linux, macOS, Windows), code style, package build and install, and a strict documentation build; Travis and AppVeyor configurations removed
+* CI on GitHub Actions: minimum dependencies on Python 3.10, latest dependencies on Python 3.15 (Linux, macOS, Windows), code style, package build and install, and a strict documentation build; Travis and AppVeyor configurations removed
+* releases are published to PyPI by a GitHub Actions workflow using Trusted Publishing, after the distributions are built and the tests pass against the installed wheel; ``CONTRIBUTING.md`` describes the release process
 
 v0.1.7
 ======

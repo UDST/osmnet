@@ -31,17 +31,17 @@ jobs:
             pip-args: -c requirements-min.txt
           # Forward boundary: newest supported Python plus current
           # versions of all dependencies, on each operating system
-          - name: Python 3.14 + latest deps
+          - name: Python 3.15 + latest deps
             os: ubuntu-latest
-            python-version: "3.14"
+            python-version: "3.15"
             pip-args: ""
-          - name: Python 3.14 + latest deps (macOS)
+          - name: Python 3.15 + latest deps (macOS)
             os: macos-latest
-            python-version: "3.14"
+            python-version: "3.15"
             pip-args: ""
-          - name: Python 3.14 + latest deps (Windows)
+          - name: Python 3.15 + latest deps (Windows)
             os: windows-latest
-            python-version: "3.14"
+            python-version: "3.15"
             pip-args: ""
 
     steps:

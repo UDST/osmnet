@@ -237,6 +237,22 @@ def test_overpass_request_retries_then_succeeds(monkeypatch, no_sleep):
     assert no_sleep == [2, 2]
 
 
+def test_overpass_request_retries_502_and_503(monkeypatch, no_sleep):
+    # the public server answers 502 with a plain-text body when it is at
+    # capacity, and proxies commonly answer 503 when rate limiting
+    busy = ('# 502 Gateway Timeout\n\nThis Overpass API server is currently '
+            'at capacity.')
+    responses = [FakeResponse(status_code=502, text=busy),
+                 FakeResponse(status_code=503),
+                 FakeResponse(text='{}', json_data={'elements': [1]})]
+    monkeypatch.setattr(load.requests, 'post',
+                        lambda url, **kw: responses.pop(0))
+    result = load.overpass_request(data={'data': 'q'},
+                                   error_pause_duration=2)
+    assert result == {'elements': [1]}
+    assert no_sleep == [2, 2]
+
+
 def test_overpass_request_retry_exhaustion(monkeypatch, no_sleep):
     calls = []
 
@@ -252,10 +268,28 @@ def test_overpass_request_retry_exhaustion(monkeypatch, no_sleep):
     assert no_sleep == [1, 1, 1]
 
 
-def test_overpass_request_504_backs_off_when_slots_free(monkeypatch,
+def _no_status_check(url, **kwargs):
+    raise AssertionError('the status endpoint should not be queried')
+
+
+@pytest.mark.parametrize('status_code', [502, 503, 504])
+def test_overpass_request_overload_backs_off_without_status_check(
+        monkeypatch, no_sleep, status_code):
+    # these codes mean the server is overloaded, when the status endpoint
+    # reports free slots or fails too, so the pause is the backoff alone
+    responses = [FakeResponse(status_code=status_code) for _ in range(3)]
+    responses.append(FakeResponse(text='{}', json_data={'elements': [1]}))
+    monkeypatch.setattr(load.requests, 'post',
+                        lambda url, **kw: responses.pop(0))
+    monkeypatch.setattr(load.requests, 'get', _no_status_check)
+    assert load.overpass_request(data={'data': 'q'}) == {'elements': [1]}
+    assert no_sleep == [5, 10, 20]
+
+
+def test_overpass_request_429_backs_off_when_slots_free(monkeypatch,
                                                         no_sleep):
-    # the status page says slots are free, but the server is overloaded
-    responses = [FakeResponse(status_code=504) for _ in range(3)]
+    # the status page says slots are free, so the backoff is the floor
+    responses = [FakeResponse(status_code=429) for _ in range(3)]
     responses.append(FakeResponse(text='{}', json_data={'elements': [1]}))
     monkeypatch.setattr(load.requests, 'post',
                         lambda url, **kw: responses.pop(0))
@@ -264,6 +298,22 @@ def test_overpass_request_504_backs_off_when_slots_free(monkeypatch,
                             text=STATUS_LIVE_2026_10_04))
     assert load.overpass_request(data={'data': 'q'}) == {'elements': [1]}
     assert no_sleep == [5, 10, 20]
+
+
+def test_overpass_request_retry_error_includes_response(monkeypatch,
+                                                        no_sleep):
+    body = 'This Overpass API server is currently at capacity. ' + 'x' * 5000
+    monkeypatch.setattr(load.requests, 'post',
+                        lambda url, **kw: FakeResponse(status_code=502,
+                                                       text=body))
+    monkeypatch.setattr(load.requests, 'get', _no_status_check)
+    with pytest.raises(load.OverpassRetryError) as excinfo:
+        load.overpass_request(data={'data': 'q'}, max_retries=1)
+    message = str(excinfo.value)
+    assert '502 after 1 retries' in message
+    assert 'reason' in message
+    assert 'currently at capacity' in message
+    assert len(message) < 1500
 
 
 def test_overpass_request_backoff_is_capped(monkeypatch, no_sleep):
