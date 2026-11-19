@@ -1,19 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using OSMnet &mdash; OSMnet 0.1.7 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>Using OSMnet &mdash; OSMnet 0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=10f1778b"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -32,9 +34,6 @@
           <a href="index.html" class="icon icon-home">
             OSMnet
           </a>
-              <div class="version">
-                0.1.7
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -81,13 +80,13 @@
            <div itemprop="articleBody">
              
   <section id="using-osmnet">
-<h1>Using OSMnet<a class="headerlink" href="#using-osmnet" title="Permalink to this heading">¶</a></h1>
+<h1>Using OSMnet<a class="headerlink" href="#using-osmnet" title="Link to this heading"></a></h1>
 <section id="creating-a-graph-network-from-a-osm-street-network">
-<h2>Creating a graph network from a OSM street network<a class="headerlink" href="#creating-a-graph-network-from-a-osm-street-network" title="Permalink to this heading">¶</a></h2>
+<h2>Creating a graph network from a OSM street network<a class="headerlink" href="#creating-a-graph-network-from-a-osm-street-network" title="Link to this heading"></a></h2>
 <p>Create a <code class="docutils literal notranslate"><span class="pre">drive</span></code> (e.g. automobile) or <code class="docutils literal notranslate"><span class="pre">walk</span></code> (e.g. pedestrian) graph network comprised of nodes and edges from OpenStreetMap (OSM) street network data via the OverpassAPI. Alternatively, custom highway way queries formatted for OverpassAPI can be written and passed to the <code class="docutils literal notranslate"><span class="pre">custom_osm_filter</span></code> parameter. Edges will be weighted by default by distance in units of meters. The resulting graph network is intended to be used with <a class="reference external" href="https://github.com/UDST/pandana">Pandana</a> network accessibility queries and <a class="reference external" href="https://github.com/UDST/urbanaccess">UrbanAccess</a> to create an integrated transit and street graph network.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="osmnet.load.network_from_bbox">
-<span class="sig-prename descclassname"><span class="pre">osmnet.load.</span></span><span class="sig-name descname"><span class="pre">network_from_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'walk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_way</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_query_area_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2500000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_osm_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.load.network_from_bbox" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">osmnet.load.</span></span><span class="sig-name descname"><span class="pre">network_from_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'walk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_way</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_query_area_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2500000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_osm_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.load.network_from_bbox" title="Link to this definition"></a></dt>
 <dd><p>Make a graph network from a bounding lat/lon box composed of nodes and
 edges for use in Pandana street network accessibility calculations.
 You may either enter a lat/long box via the four lat_min,
@@ -138,6 +137,12 @@ follow Overpass API schema. For
 example to request highway ways that are service roads use:
 ‘[“highway”=”service”]’</p>
 </dd>
+<dt><strong>max_retries</strong><span class="classifier">int, optional</span></dt><dd><p>how many times to re-try each Overpass request after a 429, 502,
+503 or 504 response before raising OverpassRetryError. Retries wait
+at least RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so
+the default of 5 gives up after about two and a half minutes. Raise
+it for large bounding boxes that need many requests</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -162,7 +167,7 @@ example to request highway ways that are service roads use:
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, UrbanSim Inc..</p>
+    <p>&#169; Copyright 2026, UrbanSim Inc..</p>
   </div>
 
    

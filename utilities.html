@@ -1,19 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Utilities &mdash; OSMnet 0.1.7 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>Utilities &mdash; OSMnet 0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=10f1778b"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -31,9 +33,6 @@
           <a href="index.html" class="icon icon-home">
             OSMnet
           </a>
-              <div class="version">
-                0.1.7
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -81,11 +80,11 @@
            <div itemprop="articleBody">
              
   <section id="utilities">
-<h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this heading">¶</a></h1>
+<h1>Utilities<a class="headerlink" href="#utilities" title="Link to this heading"></a></h1>
 <p>Global configuration settings can be changed using the settings object.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="osmnet.config.settings">
-<span class="sig-prename descclassname"><span class="pre">osmnet.config.</span></span><span class="sig-name descname"><span class="pre">settings</span></span><a class="headerlink" href="#osmnet.config.settings" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">osmnet.config.</span></span><span class="sig-name descname"><span class="pre">settings</span></span><a class="headerlink" href="#osmnet.config.settings" title="Link to this definition"></a></dt>
 <dd><p>A set of configuration variables to initiate the configuration settings
 for osmnet.</p>
 <dl class="field-list simple">
@@ -112,7 +111,7 @@ network edge table</p>
 <p>By default the global configuration settings are already set, however they can be changed by using the functions in the <code class="docutils literal notranslate"><span class="pre">osmnet_config</span></code> class:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="osmnet.config.osmnet_config">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osmnet.config.</span></span><span class="sig-name descname"><span class="pre">osmnet_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'logs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_console</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'osmnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'osmnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_osm_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['name',</span> <span class="pre">'ref',</span> <span class="pre">'highway',</span> <span class="pre">'service',</span> <span class="pre">'bridge',</span> <span class="pre">'tunnel',</span> <span class="pre">'access',</span> <span class="pre">'oneway',</span> <span class="pre">'toll',</span> <span class="pre">'lanes',</span> <span class="pre">'maxspeed',</span> <span class="pre">'hgv',</span> <span class="pre">'hov',</span> <span class="pre">'area',</span> <span class="pre">'width',</span> <span class="pre">'est_width',</span> <span class="pre">'junction']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.config.osmnet_config" title="Permalink to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">osmnet.config.</span></span><span class="sig-name descname"><span class="pre">osmnet_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'logs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_console</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'osmnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'osmnet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_osm_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['name',</span> <span class="pre">'ref',</span> <span class="pre">'highway',</span> <span class="pre">'service',</span> <span class="pre">'bridge',</span> <span class="pre">'tunnel',</span> <span class="pre">'access',</span> <span class="pre">'oneway',</span> <span class="pre">'toll',</span> <span class="pre">'lanes',</span> <span class="pre">'maxspeed',</span> <span class="pre">'hgv',</span> <span class="pre">'hov',</span> <span class="pre">'area',</span> <span class="pre">'width',</span> <span class="pre">'est_width',</span> <span class="pre">'junction']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.config.osmnet_config" title="Link to this definition"></a></dt>
 <dd><p>A set of configuration variables to initiate the configuration settings
 for osmnet.</p>
 <dl class="field-list simple">
@@ -136,7 +135,7 @@ network edge table</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="osmnet.config.osmnet_config.to_dict">
-<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.config.osmnet_config.to_dict" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#osmnet.config.osmnet_config.to_dict" title="Link to this definition"></a></dt>
 <dd><p>Return a dict representation of an osmnet osmnet_config instance.</p>
 </dd></dl>
 
@@ -154,7 +153,7 @@ network edge table</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, UrbanSim Inc..</p>
+    <p>&#169; Copyright 2026, UrbanSim Inc..</p>
   </div>
 
    
