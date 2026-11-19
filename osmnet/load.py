@@ -31,16 +31,21 @@ USER_AGENT = 'osmnet/{} (+https://github.com/UDST/osmnet)'.format(
 OVERPASS_URL = 'https://overpass-api.de/api/interpreter'
 OVERPASS_STATUS_URL = 'https://overpass-api.de/api/status'
 
-# minimum pause in seconds before re-trying after a 429 or 504; doubles with
-# each retry up to the maximum
+# status codes the Overpass API (or the proxy in front of it) returns when it
+# is overloaded or rate limiting: 429 = 'too many requests', 502 = 'bad
+# gateway', 503 = 'service unavailable', 504 = 'gateway timeout'. requests
+# that get one of these are re-tried
+RETRY_STATUS_CODES = (429, 502, 503, 504)
+# minimum pause in seconds before re-trying; doubles with each retry up to
+# the maximum
 RETRY_MIN_PAUSE = 5
 RETRY_MAX_PAUSE = 60
 
 
 class OverpassRetryError(Exception):
     """
-    Raised when the Overpass API keeps returning 429/504 after the
-    maximum number of retries.
+    Raised when the Overpass API keeps returning one of the
+    RETRY_STATUS_CODES after the maximum number of retries.
     """
     pass
 
@@ -123,11 +128,11 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         example to request highway ways that are service roads use:
         '["highway"="service"]'
     max_retries : int, optional
-        how many times to re-try each Overpass request after a 429 or 504
-        response before raising OverpassRetryError. Retries wait at least
-        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
-        default of 5 gives up after about two and a half minutes. Raise it
-        for large bounding boxes that need many requests
+        how many times to re-try each Overpass request after a 429, 502,
+        503 or 504 response before raising OverpassRetryError. Retries wait
+        at least RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so
+        the default of 5 gives up after about two and a half minutes. Raise
+        it for large bounding boxes that need many requests
 
     Returns
     -------
@@ -247,8 +252,8 @@ def overpass_request(data, pause_duration=None, timeout=180,
         endpoint, but at least RETRY_MIN_PAUSE seconds, doubling with each
         retry up to RETRY_MAX_PAUSE
     max_retries : int
-        how many times to re-try the request after a 429 or 504 response
-        before raising OverpassRetryError
+        how many times to re-try the request after a 429, 502, 503 or 504
+        response before raising OverpassRetryError
 
     Returns
     -------
@@ -264,9 +269,8 @@ def overpass_request(data, pause_duration=None, timeout=180,
         "User-Agent": USER_AGENT
     }
 
-    # 429 = 'too many requests' and 504 = 'gateway timeout' from server
-    # overload. handle these errors by re-trying the request, at most
-    # max_retries times
+    # the RETRY_STATUS_CODES mean the server is overloaded or rate limiting.
+    # handle these errors by re-trying the request, at most max_retries times
     for attempt in range(max_retries + 1):
         start_time = time.time()
         log('Posting to {} with timeout={}, "{}"'.format(url, timeout, data))
@@ -291,7 +295,7 @@ def overpass_request(data, pause_duration=None, timeout=180,
 
         except Exception:
             # else, this was an unhandled status_code, throw an exception
-            if response.status_code not in [429, 504]:
+            if response.status_code not in RETRY_STATUS_CODES:
                 log('Server at {} returned status code {} and no JSON data'
                     .format(domain, response.status_code), level=lg.ERROR)
                 raise Exception('Server returned no JSON data.\n{} {}\n{}'
@@ -305,7 +309,7 @@ def overpass_request(data, pause_duration=None, timeout=180,
         pause = error_pause_duration
         if pause is None:
             # the status endpoint reports free slots even while the server
-            # is overloaded and returning 504s, so back off regardless
+            # is overloaded and returning 502s or 504s, so back off regardless
             min_pause = min(RETRY_MIN_PAUSE * 2 ** attempt, RETRY_MAX_PAUSE)
             pause = max(get_pause_duration(), min_pause)
         log('Server at {} returned status code {} and no JSON data. '
@@ -756,11 +760,11 @@ def ways_in_bbox(lat_min, lng_min, lat_max, lng_max, network_type,
         example to request highway ways that are service roads use:
         '["highway"="service"]'
     max_retries : int, optional
-        how many times to re-try each Overpass request after a 429 or 504
-        response before raising OverpassRetryError. Retries wait at least
-        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
-        default of 5 gives up after about two and a half minutes. Raise it
-        for large bounding boxes that need many requests
+        how many times to re-try each Overpass request after a 429, 502,
+        503 or 504 response before raising OverpassRetryError. Retries wait
+        at least RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so
+        the default of 5 gives up after about two and a half minutes. Raise
+        it for large bounding boxes that need many requests
 
     Returns
     -------
@@ -939,11 +943,11 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         example to request highway ways that are service roads use:
         '["highway"="service"]'
     max_retries : int, optional
-        how many times to re-try each Overpass request after a 429 or 504
-        response before raising OverpassRetryError. Retries wait at least
-        RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so the
-        default of 5 gives up after about two and a half minutes. Raise it
-        for large bounding boxes that need many requests
+        how many times to re-try each Overpass request after a 429, 502,
+        503 or 504 response before raising OverpassRetryError. Retries wait
+        at least RETRY_MIN_PAUSE seconds, doubling up to RETRY_MAX_PAUSE, so
+        the default of 5 gives up after about two and a half minutes. Raise
+        it for large bounding boxes that need many requests
 
     Returns
     -------

@@ -237,6 +237,22 @@ def test_overpass_request_retries_then_succeeds(monkeypatch, no_sleep):
     assert no_sleep == [2, 2]
 
 
+def test_overpass_request_retries_502_and_503(monkeypatch, no_sleep):
+    # the public server answers 502 with a plain-text body when it is at
+    # capacity, and proxies commonly answer 503 when rate limiting
+    busy = ('# 502 Gateway Timeout\n\nThis Overpass API server is currently '
+            'at capacity.')
+    responses = [FakeResponse(status_code=502, text=busy),
+                 FakeResponse(status_code=503),
+                 FakeResponse(text='{}', json_data={'elements': [1]})]
+    monkeypatch.setattr(load.requests, 'post',
+                        lambda url, **kw: responses.pop(0))
+    result = load.overpass_request(data={'data': 'q'},
+                                   error_pause_duration=2)
+    assert result == {'elements': [1]}
+    assert no_sleep == [2, 2]
+
+
 def test_overpass_request_retry_exhaustion(monkeypatch, no_sleep):
     calls = []
 
