@@ -12,7 +12,7 @@ Unreleased
 * server remarks in an Overpass response are logged as warnings, as intended
 * requires Python 3.10 or later; tested on Python 3.10-3.15 with NumPy 2, pandas 3 and GeoPandas 1.x, and with the new minimum versions NumPy 1.21, pandas 1.5, GeoPandas 0.11, Shapely 1.8 and requests 2.28
 * packaging moves from ``setup.py`` to ``pyproject.toml``, with ``test``, ``docs`` and ``dev`` extras; the license is declared as ``AGPL-3.0-only``
-* no longer uses GeoPandas' deprecated ``GeoSeries.unary_union``
+* no longer uses GeoPandas' deprecated ``GeoSeries.unary_union`` or the ``inplace`` keyword that pandas 3.1 deprecates
 * the tests replay saved Overpass API responses, so they no longer depend on the live API or on later edits to OpenStreetMap; ``OSMNET_RECORD_OVERPASS=1`` refreshes the saved responses, and the live API tests in ``test_live.py`` run with ``OSMNET_LIVE_TESTS=1``
 * CI on GitHub Actions: minimum dependencies on Python 3.10, latest dependencies on Python 3.15 (Linux, macOS, Windows), code style, package build and install, and a strict documentation build; Travis and AppVeyor configurations removed
 * releases are published to PyPI by a GitHub Actions workflow using Trusted Publishing, after the distributions are built and the tests pass against the installed wheel; ``CONTRIBUTING.md`` describes the release process

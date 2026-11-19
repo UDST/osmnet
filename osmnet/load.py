@@ -218,7 +218,7 @@ def osm_net_download(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
         ways = response_jsons_df[response_jsons_df['type'] == 'way']
         ways = ways[~ways.index.duplicated(keep='first')]
         response_jsons_df = pd.concat([nodes, ways], axis=0)
-        response_jsons_df.reset_index(inplace=True)
+        response_jsons_df = response_jsons_df.reset_index()
         response_jsons = response_jsons_df.to_dict(orient='records')
         if record_count - len(response_jsons) > 0:
             log('{:,} duplicate records removed. Took {:,.2f} seconds'.format(
@@ -986,9 +986,9 @@ def network_from_bbox(lat_min=None, lng_min=None, lat_max=None, lng_max=None,
                       .union(set(edgesfinal['to_id'].unique())))
     nodesfinal = nodes.loc[node_ids]
     nodesfinal = nodesfinal[['lon', 'lat']]
-    nodesfinal.rename(columns={'lon': 'x', 'lat': 'y'}, inplace=True)
+    nodesfinal = nodesfinal.rename(columns={'lon': 'x', 'lat': 'y'})
     nodesfinal['id'] = nodesfinal.index
-    edgesfinal.rename(columns={'from_id': 'from', 'to_id': 'to'}, inplace=True)
+    edgesfinal = edgesfinal.rename(columns={'from_id': 'from', 'to_id': 'to'})
     log('Returning processed graph with {:,} nodes and {:,} edges...'
         .format(len(nodesfinal), len(edgesfinal)))
     log('Completed OSM data download and Pandana node and edge table '
