@@ -248,9 +248,9 @@ def overpass_request(data, pause_duration=None, timeout=180,
         the timeout interval for the requests library
     error_pause_duration : int
         how long to pause in seconds before re-trying requests if error. if
-        None, the pause is the wait reported by the Overpass API status
-        endpoint, but at least RETRY_MIN_PAUSE seconds, doubling with each
-        retry up to RETRY_MAX_PAUSE
+        None, the pause is RETRY_MIN_PAUSE seconds, doubling with each retry
+        up to RETRY_MAX_PAUSE. after a 429 it is the wait reported by the
+        Overpass API status endpoint, if that is longer
     max_retries : int
         how many times to re-try the request after a 429, 502, 503 or 504
         response before raising OverpassRetryError
@@ -308,10 +308,13 @@ def overpass_request(data, pause_duration=None, timeout=180,
         # pause for error_pause_duration seconds before re-trying request
         pause = error_pause_duration
         if pause is None:
-            # the status endpoint reports free slots even while the server
-            # is overloaded and returning 502s or 504s, so back off regardless
-            min_pause = min(RETRY_MIN_PAUSE * 2 ** attempt, RETRY_MAX_PAUSE)
-            pause = max(get_pause_duration(), min_pause)
+            pause = min(RETRY_MIN_PAUSE * 2 ** attempt, RETRY_MAX_PAUSE)
+            if response.status_code == 429:
+                # the server is rate limiting this client, and its status
+                # endpoint says when the next slot is free. the other codes
+                # mean the server is overloaded: the status endpoint then
+                # reports free slots or fails the same way, so don't ask it
+                pause = max(get_pause_duration(), pause)
         log('Server at {} returned status code {} and no JSON data. '
             'Re-trying request in {:.2f} seconds (retry {} of {}).'
             .format(domain, response.status_code, pause, attempt + 1,
@@ -321,9 +324,13 @@ def overpass_request(data, pause_duration=None, timeout=180,
 
     log('Server at {} returned status code {} after {} retries; giving up'
         .format(domain, response.status_code, max_retries), level=lg.ERROR)
+    # include the last response, truncated, since it can say why the server
+    # is refusing (e.g. a message from a proxy or a block notice)
     raise OverpassRetryError(
         'Overpass API at {} still returned status code {} after {} '
-        'retries.'.format(domain, response.status_code, max_retries))
+        'retries.\n{} {}\n{}'.format(domain, response.status_code,
+                                     max_retries, response, response.reason,
+                                     response.text[:1000]))
 
 
 def _parse_overpass_status(text):

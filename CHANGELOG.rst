@@ -6,7 +6,8 @@ Unreleased
 * ``get_pause_duration()`` now queries the status page over https with the User-Agent and finds the slot line by content, so it tolerates the current page layout
 * retries are bounded: ``overpass_request()`` gets a ``max_retries`` argument (default 5) and raises ``OverpassRetryError`` when 429, 502, 503 or 504 responses persist; ``get_pause_duration()`` gets a ``max_retries`` argument and falls back to ``default_duration`` while the server stays busy
 * 502 and 503 responses are retried like 429 and 504; the public Overpass server now answers 502 when it is at capacity
-* unless ``error_pause_duration`` is given, retries wait at least 5 seconds, doubling up to 60, even when the status page reports free slots, so 504s from an overloaded server are not retried back to back
+* the ``OverpassRetryError`` message includes the server's last response
+* unless ``error_pause_duration`` is given, retries wait at least 5 seconds, doubling up to 60, so requests to an overloaded server are not retried back to back; after a 429 the wait is the status page's wait for the next free slot if that is longer, and after a 502, 503 or 504 the status page is not queried
 * ``osm_net_download()``, ``ways_in_bbox()`` and ``network_from_bbox()`` accept ``max_retries`` and pass it on to each Overpass request, so large downloads can allow more retries
 * the wait for the next free slot is read from the status page's "in N seconds" rather than computed from its timestamp and the local clock; ``python-dateutil`` is no longer imported
 * the interpreter request goes to ``overpass-api.de``, the same host as the status request
