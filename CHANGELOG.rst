@@ -1,9 +1,9 @@
-v0.2rc1
-=======
+v0.2
+====
 
 2026/11/19
 
-Release candidate for v0.2, the first release since v0.1.7 in August 2023. It restores downloads from the Overpass API, which fail with HTTP 406 errors in v0.1.7, bounds the retries when the server is busy, and updates the package for current versions of Python and the geospatial libraries.
+First release since v0.1.7 in August 2023. It restores downloads from the Overpass API, which fail with HTTP 406 errors in v0.1.7, bounds the retries when the server is busy, and updates the package for current versions of Python and the geospatial libraries.
 
 * sends a descriptive User-Agent, ``osmnet/<version> (+https://github.com/UDST/osmnet)``, with requests to the Overpass API and uses https and the ``overpass-api.de`` host for both the interpreter and status endpoints, fixing the HTTP 406 errors (#33, #34)
 * ``get_pause_duration()`` finds the slot information on the status page by content, so it tolerates the current page layout, and reads the wait from the page's "in N seconds" rather than computing it from a timestamp and the local clock; ``python-dateutil`` is no longer imported (#34)

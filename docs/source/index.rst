@@ -3,7 +3,7 @@ OSMnet
 
 Tools for the extraction of `OpenStreetMap`_ (OSM) street network data. Intended to be used in tandem with `Pandana`_ and `UrbanAccess`_ libraries to extract street network nodes and edges.
 
-v0.2rc1, released November 19, 2026.
+v0.2, released November 19, 2026.
 
 Contents
 --------
